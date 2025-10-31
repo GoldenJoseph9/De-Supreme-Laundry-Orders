@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>De Supreme Laundry Mafia Family</title>
+    <link rel="stylesheet" href="main.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+</head>
+<body>
+    <!-- Initial Selection Page -->
+    <div id="selection-page" class="page active">
+        <div class="container">
+            <div class="auth-container">
+                <h1 class="mafia-title">De Supreme Laundry Mafia Family</h1>
+                <p class="mafia-subtitle">Choose your affiliation:</p>
+                <div class="login-options">
+                    <button class="login-btn made-man-btn" onclick="showLogin('customer')">Made Man Login</button>
+                    <button class="login-btn don-btn" onclick="showLogin('admin')">Don Login</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Login Form -->
+    <div id="customer-login" class="page">
+        <div class="container">
+            <div class="auth-container">
+                <h2>Made Man Login</h2>
+                <div id="customer-error-message" class="error-message"></div>
+                
+                <form id="customer-login-form" class="auth-form">
+                    <input type="email" id="customer-email" placeholder="Email" required>
+                    <input type="password" id="customer-password" placeholder="Password" required>
+                    <button type="submit">Enter The Family</button>
+                </form>
+                <button class="btn btn-warning" onclick="showSelection()" style="width: 100%;">Go Back</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Login Form -->
+    <div id="admin-login" class="page">
+        <div class="container">
+            <div class="auth-container">
+                <h2>Don Login</h2>
+                <div id="admin-error-message" class="error-message"></div>
+                
+                <form id="admin-login-form" class="auth-form">
+                    <input type="email" id="admin-email" placeholder="Don Email" required>
+                    <input type="password" id="admin-password" placeholder="Don Password" required>
+                    <button type="submit">Enter The Office</button>
+                </form>
+                <button class="btn btn-warning" onclick="showSelection()" style="width: 100%;">Go Back</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Landing Page -->  
+    <div id="customer-landing" class="page">
+        <header>
+            <h1>My Family Profile</h1>
+            <button id="customer-logout-btn" class="btn btn-danger">Go Rogue</button>
+        </header>
+          
+        <div class="container">
+            <div class="profile-card">
+                <div class="profile-header">
+                    <h2 id="customer-name">Loading...</h2>
+                    <div class="points-display" id="total-points">0 respect</div>
+                </div>
+                
+                <div class="profile-details">
+                    <h3>My Details</h3>
+                    <div><strong>Email:</strong> <span id="customer-email-display">Loading...</span></div>
+                    <div><strong>Phone:</strong> <span id="customer-phone">Loading...</span></div>
+                    <div><strong>Family Since:</strong> <span id="customer-since">Loading...</span></div>
+                </div>
+                
+                <!-- CUSTOMER OPERATIONS SECTION - UPDATED -->
+                <div class="customer-operations">
+                    <h3>My Laundry Operations</h3>
+                    <div class="operations-table-container">
+                        <table class="customer-operations-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Items</th>
+                                    <th>Status</th>
+                                    <th>Respect Earned</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customer-operations-list">
+                                <tr>
+                                    <td colspan="4" class="loading-message">Loading operations...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button id="view-points-btn" class="btn btn-primary">View My Respect Portal</button>
+                </div>
+                
+                <div style="text-align: center; margin: 20px;">
+                    <button class="btn btn-primary" onclick="window.open('family-operations.html', '_self')">
+                        🏴‍☠️ Enter Family Operations
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="customer-service">
+            <p>Got a problem? Contact our consigliere</p>
+            <a href="tel:09043930196" class="call-btn">Call The Consigliere</a>
+        </div>
+    </div>
+
+    <!-- Customer Points Portal -->
+    <div id="customer-points-portal" class="page">
+        <header>
+            <h1>My Family Respect Portal</h1>
+            <button id="points-portal-back-btn" class="btn btn-warning">Back to Profile</button>
+            <button id="points-portal-logout-btn" class="btn btn-danger">Go Rogue</button>
+        </header>
+        
+        <div class="container">
+            <div class="points-portal-container">
+                <div class="points-portal-header">
+                    <h2 id="points-customer-name">Family Member</h2>
+                    <div class="points-display-large" id="points-balance">0</div>
+                    <div class="points-label">Family Respect</div>
+                </div>
+                
+                <div class="profile-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Email Address</span>
+                        <span id="points-customer-email">loading...</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Phone Number</span>
+                        <span id="points-customer-phone">loading...</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Family Since</span>
+                        <span id="points-member-since">loading...</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Total Respect Earned</span>
+                        <span id="points-total-earned" class="points-added">0</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Total Respect Spent</span>
+                        <span id="points-total-redeemed" class="points-redeemed">0</span>
+                    </div>
+                </div>
+                
+                <div class="history-section">
+                    <h3>Respect History</h3>
+                    
+                    <div class="history-filters">
+                        <button class="filter-btn active" data-filter="all">All Activity</button>
+                        <button class="filter-btn" data-filter="earned">Respect Earned</button>
+                        <button class="filter-btn" data-filter="redeemed">Respect Spent</button>
+                    </div>
+                    
+                    <div class="history-list" id="points-history-list">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="back-to-dashboard">
+                    <button id="back-to-dashboard-btn" class="btn btn-primary">Back to Profile</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Landing Page -->
+    <div id="admin-landing" class="page">
+        <header>
+            <h1>De Supreme Laundry Family Office</h1>
+            <button id="admin-logout-btn" class="btn btn-danger">Go Rogue</button>
+        </header>
+        
+        <div class="admin-container">
+            <div class="tabs">
+                <div class="tab active" data-tab="orders">Operations</div>
+                <div class="tab" data-tab="customers">Family History</div>
+            </div>
+            
+            <!-- Orders Tab Content -->
+            <div id="orders-tab" class="tab-content active">
+                <div class="btn-group">
+                    <button id="add-customer-btn" class="btn btn-primary">Initiate New Member</button>
+                    <button class="btn btn-info" onclick="window.open('admin-gamification.html', '_self')">
+                        🎮 Gamification Control
+                    </button>
+                </div>
+                
+                <div class="search-container">
+                    <input type="text" id="search-input" class="search-input" placeholder="Search by name, phone, email, items, or status...">
+                    <button id="clear-search-btn" class="btn btn-warning">Clear</button>
+                </div>
+                
+                <table id="customers-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Phone</th>
+                            <th>Email</th>
+                            <th>Items</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Respect</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customers-list">
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 2rem;">Loading family members...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Customer History Tab Content -->
+            <div id="customers-tab" class="tab-content">
+                <button class="mobile-back-btn" id="mobile-back-btn">← Back to Operations</button>
+                <div class="search-container">
+                    <input type="text" id="customer-search-input" class="search-input" placeholder="Search family members by name, phone, or email...">
+                    <button id="clear-customer-search-btn" class="btn btn-warning">Clear</button>
+                </div>
+                
+                <div class="customer-history-section" id="customer-history-list">
+                    <p>Loading family history...</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Add/Edit Customer Modal -->
+        <div class="modal" id="customer-modal">
+            <div class="modal-content">
+                <button id="close-modal" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer;">×</button>
+                <h2 id="modal-title">Initiate New Member</h2>
+                <form id="customer-form">
+                    <input type="hidden" id="customer-id">
+                    
+                    <div class="form-group">
+                        <label for="customer-name-input" class="form-label">Name:</label>
+                        <input type="text" id="customer-name-input" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group" id="phone-field-group">
+                        <label for="customer-phone-input" class="form-label">Phone:</label>
+                        <input type="tel" id="customer-phone-input" class="form-control">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customer-email-input" class="form-label">Email:</label>
+                        <input type="email" id="customer-email-input" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customer-items-input" class="form-label">Items:</label>
+                        <input type="text" id="customer-items-input" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customer-date-input" class="form-label">Date:</label>
+                        <input type="date" id="customer-date-input" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customer-status-input" class="form-label">Status:</label>
+                        <select id="customer-status-input" class="form-control" required>
+                            <option value="pending">In Progress</option>
+                            <option value="ready">Ready for Pickup</option>
+                            <option value="collected">Collected</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customer-points-input" class="form-label">Respect:</label>
+                        <input type="number" id="customer-points-input" class="form-control" value="0" min="0">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success" style="width: 100%;">Make Them An Offer</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Add Points Modal -->
+        <div class="modal" id="points-modal">
+            <div class="modal-content">
+                <button id="close-points-modal" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer;">×</button>
+                <h2>Grant Respect</h2>
+                <form id="points-form">
+                    <input type="hidden" id="points-customer-id">
+                    <input type="hidden" id="points-customer-email">
+                    <input type="hidden" id="points-customer-phone">
+                    <div class="form-group">
+                        <label for="points-amount" class="form-label">Respect to Grant:</label>
+                        <input type="number" id="points-amount" class="form-control" value="10" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="points-reason" class="form-label">Reason (optional):</label>
+                        <input type="text" id="points-reason" class="form-control" placeholder="e.g. Loyalty bonus, Referral, etc.">
+                    </div>
+                    <button type="submit" class="btn btn-success" style="width: 100%;">Grant Respect</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Redeem Points Modal -->
+        <div class="modal" id="redeem-modal">
+            <div class="modal-content">
+                <button id="close-redeem-modal" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer;">×</button>
+                <h2>Spend Respect</h2>
+                <form id="redeem-form">
+                    <input type="hidden" id="redeem-customer-id">
+                    <input type="hidden" id="redeem-customer-email">
+                    <input type="hidden" id="redeem-customer-phone">
+                    <div class="form-group">
+                        <label for="redeem-amount" class="form-label">Respect to Spend:</label>
+                        <input type="number" id="redeem-amount" class="form-control" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="redeem-reason" class="form-label">Reward/Reason:</label>
+                        <input type="text" id="redeem-reason" class="form-control" placeholder="e.g. Free Detergent, Discount, etc." required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Respect Balance: <span id="points-balance-display">0</span></label>
+                    </div>
+                    <button type="submit" class="btn btn-success" style="width: 100%;">Spend Respect</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Customer History Modal -->
+        <div class="modal" id="history-modal">
+            <div class="modal-content">
+                <button id="close-history-modal" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer;">×</button>
+                <h2 id="history-title">Family Member History</h2>
+                
+                <div class="summary-card">
+                    <div class="summary-item">
+                        <div class="summary-value" id="total-visits">0</div>
+                        <div class="summary-label">Total Visits</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value" id="total-orders">0</div>
+                        <div class="summary-label">Total Operations</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value" id="total-points-earned">0</div>
+                        <div class="summary-label">Respect Earned</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value" id="total-points-redeemed">0</div>
+                        <div class="summary-label">Respect Spent</div>
+                    </div>
+                </div>
+                
+                <div class="customer-details">
+                    <h3>Family Member Information</h3>
+                    <div><strong>Name:</strong> <span id="history-customer-name">Loading...</span></div>
+                    <div><strong>Phone:</strong> <span id="history-customer-phone">Loading...</span></div>
+                    <div><strong>Email:</strong> <span id="history-customer-email">Loading...</span></div>
+                    <div><strong>Total Respect Earned:</strong> <span id="history-customer-points-earned" class="points-earned-badge">0</span></div>
+                    <div><strong>Current Respect Balance:</strong> <span id="history-customer-points-balance" class="points-balance-badge">0</span></div>
+                </div>
+                
+                <div class="history-section">
+                    <h3>Operation History <span class="visits-badge" id="order-count">0 operations</span></h3>
+                    <div id="order-history-list">
+                        <p>Loading operation history...</p>
+                    </div>
+                </div>
+                
+                <div class="history-section">
+                    <h3>Respect History <span class="visits-badge" id="admin-points-count">0 events</span></h3>
+                    <div id="admin-points-history-list">
+                        <p>Loading respect history...</p>
+                    </div>
+                </div>
+                
+                <div class="history-section">
+                    <h3>Spending History <span class="visits-badge" id="redemption-count">0 redemptions</span></h3>
+                    <div id="redemption-history-list">
+                        <p>Loading spending history...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Loading Indicator -->
+        <div class="loading" id="loading-indicator">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/customer.js"></script>
+    <script src="js/admin.js"></script>
+    
+    <!-- Game Scripts -->
+    <script src="gamejs/gamification.js"></script>
+    <script src="gamejs/marketing-campaigns.js"></script>
+    <script src="game/rank-system.js"></script>
+    <script src="gamejs/vault-rewards.js"></script>
+    <script src="gamejs/interactive-elements.js"></script>
+</body>
+</html>

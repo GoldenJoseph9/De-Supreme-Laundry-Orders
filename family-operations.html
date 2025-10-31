@@ -1,0 +1,3898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Operations - LaundryPro</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #1a1a1a;
+            color: #f5f5f5;
+            min-height: 100vh;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" opacity="0.05"><rect width="100" height="100" fill="none" stroke="white" stroke-width="2"/></svg>');
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .auth-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            background: #2c2c2c;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            margin: 2rem auto;
+            border: 1px solid #444;
+        }
+        
+        .auth-container h2 {
+            text-align: center;
+            color: #d4af37;
+            margin-bottom: 20px;
+            font-family: 'Times New Roman', serif;
+        }
+        
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .auth-form input {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: #3a3a3a;
+            border: 1px solid #555;
+            border-radius: 4px;
+            font-size: 16px;
+            color: white;
+        }
+        
+        .auth-form button {
+            background-color: #8B0000;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s;
+        }
+        
+        .auth-form button:hover {
+            background-color: #A52A2A;
+        }
+        
+        .error-message {
+            color: #ff6b6b;
+            margin-bottom: 15px;
+            text-align: center;
+            min-height: 20px;
+        }
+        
+        .success-message {
+            color: #4CAF50;
+        }
+        
+        .login-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .login-btn {
+            padding: 15px 30px;
+            background: #8B0000;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        .login-btn:hover {
+            background: #A52A2A;
+        }
+        
+        header {
+            background-color: #2c2c2c;
+            color: #d4af37;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 2px solid #8B0000;
+            font-family: 'Times New Roman', serif;
+        }
+        
+        .customer-container {
+            max-width: 1200px;
+            margin: 5rem auto 2rem;
+            padding: 0 1rem;
+            min-height: 1200px;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background-color: #8B0000;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #A52A2A;
+        }
+        
+        .btn-danger {
+            background-color: #8B0000;
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: #2e8b57;
+            color: white;
+        }
+        
+        .btn-warning {
+            background-color: #d4af37;
+            color: #1a1a1a;
+        }
+        
+        .btn-info {
+            background-color: #4682b4;
+            color: white;
+        }
+        
+        .rank-card {
+            background: #2c2c2c;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid #444;
+        }
+        
+        .rank-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #444;
+            padding-bottom: 1rem;
+        }
+        
+        .rank-title {
+            font-size: 1.5rem;
+            color: #d4af37;
+            font-family: 'Times New Roman', serif;
+        }
+        
+        .current-rank {
+            font-size: 1.2rem;
+            background: #8B0000;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .progress-container {
+            margin-top: 1rem;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: #3a3a3a;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8B0000, #d4af37);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .jobs-section {
+            background: #2c2c2c;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid #444;
+        }
+        
+        .section-title {
+            color: #d4af37;
+            margin-bottom: 1.5rem;
+            font-family: 'Times New Roman', serif;
+            border-bottom: 1px solid #444;
+            padding-bottom: 0.5rem;
+        }
+        
+        .job-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        .job-card {
+            background: #3a3a3a;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border: 1px solid #555;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .job-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        
+        .job-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #d4af37;
+        }
+        
+        .job-description {
+            font-size: 0.9rem;
+            color: #ccc;
+            margin-bottom: 1rem;
+        }
+        
+        .job-reward {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .points-badge {
+            background: #d4af37;
+            color: #1a1a1a;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .vault-section {
+            background: #2c2c2c;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid #444;
+        }
+        
+        .vault-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #d4af37;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.7rem;
+            background: #3a3a3a;
+            border: 1px solid #555;
+            border-radius: 4px;
+            font-size: 1rem;
+            color: white;
+        }
+        
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .contact-section {
+            background: #2c2c2c;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid #444;
+            text-align: center;
+        }
+        
+        .contact-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .whatsapp-btn {
+            background: #25D366;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.3s;
+        }
+        
+        .whatsapp-btn:hover {
+            background: #128C7E;
+        }
+        
+        .gmail-btn {
+            background: #D44638;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.3s;
+        }
+        
+        .gmail-btn:hover {
+            background: #B23121;
+        }
+        
+        .rankings-section {
+            background: #2c2c2c;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid #444;
+        }
+
+        .geographical-map {
+            background: #3a3a3a;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border: 1px solid #555;
+            margin-bottom: 2rem;
+        }
+        
+        .families-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .family-card {
+            background: #2c2c2c;
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid #555;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .family-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        
+        .family-name {
+            color: #d4af37;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        
+        .family-stats {
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+
+        .geographical-location {
+            font-size: 0.8rem;
+            color: #d4af37;
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        .location-badge {
+            background: #8B0000;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        
+        .notification-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .notification-item {
+            background: #3a3a3a;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #555;
+            border-left: 4px solid #d4af37;
+            transition: all 0.3s ease;
+        }
+
+        .notification-item.unread {
+            border-left-color: #8B0000;
+            background: #2c2c2c;
+        }
+
+        .notification-item:hover {
+            transform: translateX(5px);
+        }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .notification-title {
+            font-weight: bold;
+            color: #d4af37;
+            font-size: 1.1rem;
+        }
+
+        .notification-date {
+            font-size: 0.8rem;
+            color: #ccc;
+            white-space: nowrap;
+        }
+
+        .notification-message {
+            color: #f5f5f5;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .notification-type {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            background: #8B0000;
+            color: white;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .notification-actions-small {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .notification-item.job_approved {
+            border-left-color: #2ecc71;
+        }
+
+        .notification-item.job_rejected {
+            border-left-color: #e74c3c;
+        }
+
+        .empty-notifications {
+            text-align: center;
+            padding: 3rem;
+            color: #ccc;
+        }
+
+        .empty-notifications i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #d4af37;
+        }
+        
+        .page {
+            display: none;
+        }
+        
+        .active {
+            display: block;
+        }
+        
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .spinner {
+            border: 5px solid #3a3a3a;
+            border-top: 5px solid #d4af37;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #ccc;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #d4af37;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: #2c2c2c;
+            border-radius: 8px;
+            padding: 2rem;
+            max-width: 90%;
+            width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 2px solid #d4af37;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #444;
+            padding-bottom: 1rem;
+        }
+        
+        .modal-title {
+            color: #d4af37;
+            font-size: 1.5rem;
+            font-family: 'Times New Roman', serif;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            color: #d4af37;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+        
+        .family-description {
+            font-style: italic;
+            color: #ccc;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #3a3a3a;
+            border-radius: 4px;
+            border-left: 4px solid #d4af37;
+        }
+        
+        .family-stats-modal {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-card {
+            background: #3a3a3a;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid #555;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #d4af37;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+        
+        .logout-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .logout-message {
+            background: #2c2c2c;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid #444;
+            max-width: 500px;
+        }
+        
+        .logout-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .leading-family-card {
+            background: #2c2c2c;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border: 2px solid #d4af37;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            grid-column: 1 / -1;
+        }
+        
+        .leading-family-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        
+        .leading-family-badge {
+            background: #d4af37;
+            color: #1a1a1a;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+        
+        .rank-distribution {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        
+        .rank-dist-item {
+            background: #3a3a3a;
+            border-radius: 6px;
+            padding: 0.5rem;
+            text-align: center;
+        }
+        
+        .rank-dist-count {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #d4af37;
+        }
+        
+        .rank-dist-label {
+            font-size: 0.8rem;
+            color: #ccc;
+        }
+
+        /* NEW STYLES FOR ENHANCED FEATURES */
+        .family-hierarchy {
+            background: #3a3a3a;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border: 1px solid #555;
+        }
+
+        .hierarchy-title {
+            color: #d4af37;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .hierarchy-levels {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .hierarchy-level {
+            background: #2c2c2c;
+            border-radius: 6px;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid #444;
+        }
+
+        .hierarchy-role {
+            font-weight: bold;
+            color: #d4af37;
+            margin-bottom: 0.5rem;
+        }
+
+        .hierarchy-member {
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+
+        .internal-role-badge {
+            background: #8B0000;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-left: 0.5rem;
+        }
+
+        .family-contract {
+            background: linear-gradient(135deg, #2c2c2c, #3a3a3a);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border: 2px solid #d4af37;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contract-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #d4af37;
+            color: #1a1a1a;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .contract-progress {
+            margin-top: 1rem;
+        }
+
+        .contract-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+
+        .tribute-system {
+            background: linear-gradient(135deg, #2c2c2c, #8B0000);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border: 1px solid #d4af37;
+        }
+
+        .tribute-title {
+            color: #d4af37;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .tribute-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .tribute-stat {
+            background: rgba(0,0,0,0.3);
+            border-radius: 6px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .tribute-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #d4af37;
+        }
+
+        .tribute-label {
+            font-size: 0.8rem;
+            color: #ccc;
+        }
+
+        .monthly-reset {
+            background: #3a3a3a;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-left: 4px solid #d4af37;
+            text-align: center;
+        }
+
+        .reset-timer {
+            font-size: 1.1rem;
+            color: #d4af37;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+
+        .reset-label {
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+
+        /* NEW IMPOSSIBLE FEATURES STYLES */
+        .territory-control {
+            background: linear-gradient(135deg, #2c2c2c, #1a472a);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border: 1px solid #d4af37;
+        }
+
+        .territory-title {
+            color: #d4af37;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .territory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .territory-card {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            border: 2px solid #555;
+            transition: all 0.3s ease;
+        }
+
+        .territory-card.controlled {
+            border-color: #d4af37;
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        .territory-card.controlled-by-user {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.1);
+        }
+
+        .territory-name {
+            font-weight: bold;
+            color: #d4af37;
+            margin-bottom: 0.5rem;
+        }
+
+        .territory-controller {
+            font-size: 0.9rem;
+            color: #ccc;
+            margin-bottom: 0.5rem;
+        }
+
+        .territory-bonus {
+            font-size: 0.8rem;
+            color: #2ecc71;
+            font-weight: bold;
+        }
+
+        .family-wars {
+            background: linear-gradient(135deg, #2c2c2c, #8B0000);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border: 1px solid #d4af37;
+        }
+
+        .wars-title {
+            color: #d4af37;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .active-wars {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .war-card {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            border: 2px solid #e74c3c;
+        }
+
+        .war-families {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .war-family {
+            text-align: center;
+            flex: 1;
+        }
+
+        .war-family-name {
+            font-weight: bold;
+            color: #d4af37;
+        }
+
+        .war-vs {
+            margin: 0 1rem;
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .war-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #ccc;
+        }
+
+        .war-timer {
+            text-align: center;
+            margin-top: 0.5rem;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+
+        .weekly-bonuses {
+            background: linear-gradient(135deg, #2c2c2c, #2c3e50);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border: 1px solid #d4af37;
+        }
+
+        .bonuses-title {
+            color: #d4af37;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .bonus-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .bonus-card {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid #555;
+        }
+
+        .bonus-card.active {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.1);
+        }
+
+        .bonus-name {
+            font-weight: bold;
+            color: #d4af37;
+            margin-bottom: 0.5rem;
+        }
+
+        .bonus-value {
+            font-size: 1.1rem;
+            color: #2ecc71;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .bonus-description {
+            font-size: 0.8rem;
+            color: #ccc;
+        }
+
+        .omerta-challenges {
+            background: linear-gradient(135deg, #2c2c2c, #34495e);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border: 1px solid #d4af37;
+        }
+
+        .challenges-title {
+            color: #d4af37;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .challenge-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .challenge-card {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            border: 2px solid #9b59b6;
+        }
+
+        .challenge-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .challenge-dons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .challenge-don {
+            text-align: center;
+            flex: 1;
+        }
+
+        .challenge-don-name {
+            font-weight: bold;
+            color: #d4af37;
+        }
+
+        .challenge-vs {
+            margin: 0 0.5rem;
+            color: #9b59b6;
+            font-weight: bold;
+        }
+
+        .challenge-stakes {
+            text-align: center;
+            margin: 0.5rem 0;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+
+        .challenge-timer {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+
+        .challenge-actions {
+            display: flex;
+            justify-content: center;
+            margin-top: 0.5rem;
+        }
+
+        /* Points History Section */
+        .points-history-section {
+            background: #2c2c2c;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid #444;
+        }
+
+        .points-history-item {
+            background: #3a3a3a;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #d4af37;
+            transition: all 0.3s ease;
+        }
+
+        .points-history-item:hover {
+            transform: translateX(5px);
+        }
+
+        .points-history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .points-history-reason {
+            font-weight: bold;
+            color: #d4af37;
+            font-size: 1.1rem;
+        }
+
+        .points-history-date {
+            font-size: 0.8rem;
+            color: #ccc;
+            white-space: nowrap;
+        }
+
+        .points-history-details {
+            color: #f5f5f5;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .points-history-meta {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .points-history-source {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            background: #8B0000;
+            color: white;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .points-history-amount {
+            font-weight: bold;
+            color: #2ecc71;
+            font-size: 1.1rem;
+        }
+
+        .points-history-item.territory_control {
+            border-left-color: #2ecc71;
+        }
+
+        .points-history-item.family_war {
+            border-left-color: #e74c3c;
+        }
+
+        .points-history-item.weekly_bonus {
+            border-left-color: #3498db;
+        }
+
+        .points-history-item.omerta_challenge {
+            border-left-color: #9b59b6;
+        }
+
+        .points-history-item.tribute_system {
+            border-left-color: #f39c12;
+        }
+
+        .points-history-item.job_completion {
+            border-left-color: #d4af37;
+        }
+
+        @media (max-width: 768px) {
+            .vault-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .job-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .contact-buttons {
+                flex-direction: column;
+            }
+            
+            .rank-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .notification-actions {
+                flex-direction: column;
+            }
+            
+            .families-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 1rem;
+            }
+            
+            .family-stats-modal {
+                grid-template-columns: 1fr;
+            }
+            
+            .logout-actions {
+                flex-direction: column;
+            }
+            
+            .rank-distribution {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .hierarchy-levels {
+                grid-template-columns: 1fr;
+            }
+
+            .tribute-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .territory-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .active-wars {
+                grid-template-columns: 1fr;
+            }
+
+            .bonus-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .challenge-list {
+                grid-template-columns: 1fr;
+            }
+
+            .points-history-meta {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Initial Selection Page -->
+    <div id="selection-page" class="page active">
+        <div class="container">
+            <div class="auth-container">
+                <h1>Family Operations</h1>
+                <p>Welcome to the Family. Enter through the proper channels:</p>
+                <div class="login-options">
+                    <button class="login-btn" onclick="showLogin('customer')">Associate Login</button>
+                    <button class="login-btn" onclick="goToHomepage()" style="background: #d4af37; color: #1a1a1a;">Back to Homepage</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Login Form -->
+    <div id="customer-login" class="page">
+        <div class="container">
+            <div class="auth-container">
+                <h2>Associate Login</h2>
+                <div id="customer-error-message" class="error-message"></div>
+                
+                <form id="customer-login-form" class="auth-form">
+                    <input type="email" id="customer-email" placeholder="Email" required>
+                    <input type="password" id="customer-password" placeholder="Password" required>
+                    <button type="submit">Login</button>
+                </form>
+                <button class="btn btn-warning" onclick="showSelection()" style="width: 100%;">Back to Family</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Dashboard -->
+    <div id="customer-dashboard" class="page">
+        <header>
+            <h1>Family Operations</h1>
+            <div>
+                <button id="view-rankings-btn" class="btn btn-info" style="margin-right: 10px;">View Individual Rankings</button>
+                <button id="view-points-history-btn" class="btn btn-warning" style="margin-right: 10px;">Points History</button>
+                <button id="customer-logout-btn" class="btn btn-danger">Logout</button>
+            </div>
+        </header>
+        
+        <div class="customer-container">
+            <!-- Enhanced Rank Card with Internal Roles -->
+            <div class="rank-card">
+                <div class="rank-header">
+                    <h2 class="rank-title">Your Rank & Internal Role</h2>
+                    <div class="current-rank" id="current-rank">ASSOCIATE</div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>Progress to <span id="next-rank">Soldier</span></span>
+                        <span id="progress-text">0/1000 Respect</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div style="margin-top: 1rem;">
+                    <p>Current Respect: <span id="current-respect" class="points-badge">0</span></p>
+                    <p style="margin-top: 0.5rem;">Your Territory: <span id="user-location" class="location-badge">Loading...</span></p>
+                    <p style="margin-top: 0.5rem;">Internal Role: <span id="internal-role" class="internal-role-badge">Calculating...</span></p>
+                </div>
+
+                <!-- Monthly Reset Timer -->
+                <div class="monthly-reset">
+                    <div class="reset-label">Next Family Reset</div>
+                    <div class="reset-timer" id="reset-timer">30 days 00:00:00</div>
+                    <div class="reset-label">All monthly rankings and tributes reset</div>
+                </div>
+            </div>
+
+            <!-- Points History Section -->
+            <div class="points-history-section" id="points-history-section" style="display: none;">
+                <h2 class="section-title">📊 Your Points History</h2>
+                <div class="notification-actions">
+                    <button class="btn btn-info" onclick="loadPointsHistory()">Refresh History</button>
+                    <button class="btn btn-warning" onclick="showCustomerDashboard()">Back to Dashboard</button>
+                </div>
+                <div id="points-history-list">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NEW: Territory Control System -->
+            <div class="territory-control" id="territory-control-section">
+                <h3 class="territory-title">🗺️ Territory Control</h3>
+                <div class="territory-grid" id="territory-grid">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NEW: Family Wars Section -->
+            <div class="family-wars" id="family-wars-section">
+                <h3 class="wars-title">⚔️ Active Family Wars</h3>
+                <div class="active-wars" id="active-wars">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NEW: Weekly Bonuses -->
+            <div class="weekly-bonuses" id="weekly-bonuses-section">
+                <h3 class="bonuses-title">💰 Weekly Family Bonuses</h3>
+                <div class="bonus-grid" id="bonus-grid">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NEW: Omertà Challenges -->
+            <div class="omerta-challenges" id="omerta-challenges-section">
+                <h3 class="challenges-title">🎯 Omertà Challenges</h3>
+                <div class="challenge-list" id="challenge-list">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Family Hierarchy Display -->
+            <div class="family-hierarchy" id="family-hierarchy-section">
+                <h3 class="hierarchy-title">👑 Your Family Hierarchy</h3>
+                <div class="hierarchy-levels" id="family-hierarchy-levels">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tribute System Display -->
+            <div class="tribute-system" id="tribute-system-section">
+                <h3 class="tribute-title">💰 Monthly Tribute System</h3>
+                <div class="tribute-stats" id="tribute-stats">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+                <div style="text-align: center; color: #ccc; font-size: 0.9rem;">
+                    Tributes distributed automatically on monthly reset
+                </div>
+            </div>
+            
+            <!-- Family Geographical Rankings Section -->
+            <div class="geographical-map">
+                <h2 class="section-title">Family Territories</h2>
+                <div id="families-overview">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Individual Rankings Section -->
+            <div class="rankings-section" id="individual-rankings-section" style="display: none;">
+                <h2 class="section-title">Individual Rankings</h2>
+                <div id="individual-rankings-list">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Family Contracts Section -->
+            <div class="jobs-section">
+                <h2 class="section-title">🏆 Family Contracts</h2>
+                <div id="family-contracts-list">
+                    <div class="family-contract">
+                        <div class="contract-badge">GROUP GOAL</div>
+                        <h3 class="job-title">The Vito Corleone Job</h3>
+                        <p class="job-description">Collectively wash 500 loads as a family this month</p>
+                        <div class="contract-progress">
+                            <div class="progress-label">
+                                <span>Family Progress</span>
+                                <span id="contract-progress-text">0/500 Loads</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="contract-progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="contract-stats">
+                            <span>Reward: <strong>50 Respect</strong> to all members</span>
+                            <span id="contract-completion">0% Complete</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Jobs Section -->
+            <div class="jobs-section">
+                <h2 class="section-title">Quick Jobs</h2>
+                <div class="job-grid">
+                    <div class="job-card">
+                        <h3 class="job-title">The Wiretap</h3>
+                        <p class="job-description">Like and Follow on Facebook</p>
+                        <div class="job-reward">
+                            <button class="btn btn-primary complete-job" data-job="wiretap" data-points="15" data-link="https://www.facebook.com/share/1bK1uNXQN3/">Complete Job</button>
+                            <span class="points-badge">+15 Respect</span>
+                        </div>
+                    </div>
+                    <div class="job-card">
+                        <h3 class="job-title">Silent Partner</h3>
+                        <p class="job-description">Write a Review</p>
+                        <div class="job-reward">
+                            <button class="btn btn-primary complete-job" data-job="silentpartner" data-points="15" data-link="https://share.google/qjpMmSaMOEqPlct1E">Complete Job</button>
+                            <span class="points-badge">+15 Respect</span>
+                        </div>
+                    </div>
+                    <div class="job-card">
+                        <h3 class="job-title">Make an Offer</h3>
+                        <p class="job-description">Refer a Friend</p>
+                        <div class="job-reward">
+                            <button class="btn btn-primary complete-job" data-job="referral" data-points="20">Complete Job</button>
+                            <span class="points-badge">+20 Respect</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Available Jobs Section -->
+            <div class="jobs-section">
+                <h2 class="section-title">Available Jobs</h2>
+                <div id="available-jobs-list">
+                    <p>Loading available jobs...</p>
+                </div>
+            </div>
+            
+            <!-- Notification Center -->
+            <div class="jobs-section">
+                <h2 class="section-title">My Notifications</h2>
+                <div class="notification-actions">
+                    <button class="btn btn-info" onclick="loadNotifications()">Refresh Notifications</button>
+                    <button class="btn btn-warning" onclick="markAllNotificationsRead()">Mark All as Read</button>
+                </div>
+                <div id="notifications-list">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- The Vault Section -->
+            <div class="vault-section">
+                <h2 class="section-title">The Vault</h2>
+                <p>Spend your hard-earned Respect on exclusive services</p>
+                
+                <form id="vault-form" class="vault-form">
+                    <div class="form-group">
+                        <label for="service-type" class="form-label">Service Type</label>
+                        <select id="service-type" class="form-control" required>
+                            <option value="">Select a service</option>
+                            <option value="express-laundry">Express Laundry</option>
+                            <option value="pickup-delivery">Pickup & Delivery</option>
+                            <option value="special-treatment">Special Treatment</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="service-details" class="form-label">Service Details</label>
+                        <textarea id="service-details" class="form-control" placeholder="Describe your request..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-preference" class="form-label">Contact Preference</label>
+                        <select id="contact-preference" class="form-control" required>
+                            <option value="">Select contact method</option>
+                            <option value="phone">Phone</option>
+                            <option value="email">Email</option>
+                            <option value="whatsapp">WhatsApp</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="urgency" class="form-label">Urgency</label>
+                        <select id="urgency" class="form-control" required>
+                            <option value="standard">Standard</option>
+                            <option value="urgent">Urgent</option>
+                            <option value="asap">ASAP</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <button type="submit" class="btn btn-success" style="width: 100%;">Submit Request</button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Contact Section -->
+            <div class="contact-section">
+                <h2 class="section-title">Need to Reach Out?</h2>
+                <p>Contact the Family directly through our trusted channels</p>
+                
+                <div class="contact-buttons">
+                    <a href="https://wa.me/2349043930196" class="whatsapp-btn" target="_blank">
+                        <span>Consigliere (WhatsApp)</span>
+                    </a>
+                    <a href="mailto:your-email@gmail.com?subject=Family%20Operations%20Inquiry&body=I%20would%20like%20to%20contact%20you%20regarding%20Family%20Operations" class="gmail-btn" target="_blank">
+                        <span>The Informant (Gmail)</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Page -->
+    <div id="logout-page" class="page">
+        <div class="logout-container">
+            <div class="logout-message">
+                <h2>You have been logged out</h2>
+                <p>Thank you for your service to the Family.</p>
+            </div>
+            <div class="logout-actions">
+                <button class="btn btn-primary" onclick="showLogin('customer')">Sign In Again</button>
+                <button class="btn btn-warning" onclick="goToHomepage()">Back to Homepage</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Family Modal -->
+    <div id="family-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-family-name">Family Details</h3>
+                <button class="close-modal" onclick="closeFamilyModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="family-stats-modal" id="modal-family-stats">
+                    <!-- Stats will be populated here -->
+                </div>
+                <div class="family-description" id="modal-family-description">
+                    <!-- Description will be populated here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeFamilyModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leading Family Modal -->
+    <div id="leading-family-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="leading-family-name">Leading Family</h3>
+                <button class="close-modal" onclick="closeLeadingFamilyModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="family-stats-modal" id="leading-family-stats">
+                    <!-- Stats will be populated here -->
+                </div>
+                <div class="rank-distribution" id="rank-distribution">
+                    <!-- Rank distribution will be populated here -->
+                </div>
+                <div class="family-description" id="leading-family-description">
+                    <!-- Description will be populated here -->
+                </div>
+                <div style="margin-top: 1.5rem; padding: 1rem; background: #3a3a3a; border-radius: 8px; border-left: 4px solid #d4af37;">
+                    <h4 style="color: #d4af37; margin-bottom: 0.5rem;">👑 The Don</h4>
+                    <p id="leading-family-don">Loading...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeLeadingFamilyModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div class="loading" id="loading-indicator">
+        <div class="spinner"></div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC-UKRcGQ6k_UekiBigQLmU9WR20UGazWg",
+            authDomain: "desupreme-laundromat-store-mgt.firebaseapp.com",
+            databaseURL: "https://desupreme-laundromat-store-mgt-default-rtdb.firebaseio.com",
+            projectId: "desupreme-laundromat-store-mgt",
+            storageBucket: "desupreme-laundromat-store-mgt.appspot.com",
+            messagingSenderId: "635010254043",
+            appId: "1:635010254043:web:81addf7247e261c8a538fe",
+            measurementId: "G-0YDT6GEWZS"
+        };
+
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        const auth = firebase.auth();
+        const database = firebase.database();
+        
+        // Rank System
+        const rankSystem = {
+            associate: { min: 0, max: 999 },
+            soldier: { min: 1000, max: 2999 },
+            capo: { min: 3000, max: 5999 },
+            underboss: { min: 6000, max: 9999 },
+            boss: { min: 10000, max: Infinity }
+        };
+
+        // Family Territories
+        const families = [
+            "De Supreme Family", 
+            "De Speed Family", 
+            "De Reliable Family"
+        ];
+        
+        // Family Descriptions
+        const familyDescriptions = {
+            "De Supreme Family": "Join the family that sets the standard. We don't follow trends - we create them. Excellence flows through our veins.",
+            "De Speed Family": "Time is money, and we respect both. Join the family that gets things done while others are still talking.",
+            "De Reliable Family": "In this world, you need people you can count on. We're the foundation everything else is built upon."
+        };
+
+        // Internal Role System
+        const internalRoles = {
+            'don': { title: 'The Don', description: 'Family Leader' },
+            'underboss': { title: 'Underboss', description: 'Second in Command' },
+            'capo': { title: 'Capo', description: 'Captain' },
+            'enforcer': { title: 'The Enforcer', description: 'Top Weekly Earner' },
+            'accountant': { title: 'The Accountant', description: 'Most Consistent' },
+            'soldier': { title: 'Soldier', description: 'Loyal Member' },
+            'associate': { title: 'Associate', description: 'New Member' }
+        };
+
+        // Territory System Configuration
+        const territoriesConfig = {
+            'express_machines': { name: 'Express Machines', bonus: 'Double points on express washes', value: 2.0, points: 200 },
+            'dry_cleaning': { name: 'Dry Cleaning Station', bonus: '+25% points on dry cleaning', value: 1.25, points: 125 },
+            'folding_area': { name: 'Folding Area', bonus: 'Bonus points for folding services', value: 1.5, points: 150 },
+            'vip_lounge': { name: 'VIP Lounge', bonus: 'Exclusive VIP job access', value: 3.0, points: 300 }
+        };
+
+        // War System Configuration
+        const warConfig = {
+            'victory_points': 500,
+            'participation_points': 100,
+            'top_performer_bonus': 250
+        };
+
+        // Weekly Bonus Configuration
+        const weeklyBonusConfig = {
+            'top_family': { points: 500 },
+            'most_active': { points: 300 },
+            'territory_dominance': { points: 400 }
+        };
+
+        // Challenge System Configuration
+        const challengeConfig = {
+            'victory_points': 1000,
+            'participation_points': 200
+        };
+
+        // Tribute System Configuration
+        const tributeConfig = {
+            'don_percentage': 0.10,
+            'underboss_percentage': 0.05,
+            'capo_percentage': 0.02
+        };
+        
+        // Global Variables
+        let currentUser = null;
+        let familyStats = {};
+        let leadingFamily = null;
+        let userFamily = '';
+
+        // ========== ENHANCED POINTS HISTORY SYSTEM ==========
+
+        // Record points to history for ALL sources
+        function recordPointsToHistory(userId, userEmail, points, reason, source, details = {}) {
+            const pointsHistoryId = 'ph_' + Date.now();
+            const pointsHistoryData = {
+                pointsAdded: points,
+                reason: reason,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                customerEmail: userEmail,
+                customerId: userId,
+                source: source,
+                systemAward: true,
+                details: details,
+                processedBy: 'system_auto'
+            };
+            
+            console.log(`📝 Recording points to history: ${points} points for ${reason} (${source})`);
+            
+            return database.ref('pointsHistory/' + pointsHistoryId).set(pointsHistoryData);
+        }
+
+        // Process territory control bonuses with points history
+        function processTerritoryBonuses(userId, userEmail, familyName) {
+            database.ref('territories').once('value')
+                .then((snapshot) => {
+                    if (!snapshot.exists()) return;
+                    
+                    const territories = snapshot.val();
+                    let totalBonus = 0;
+                    let controlledTerritories = [];
+                    
+                    // Calculate territory bonuses
+                    Object.keys(territories).forEach(territoryId => {
+                        const territory = territories[territoryId];
+                        if (territory.familyName === familyName) {
+                            const territoryInfo = territoriesConfig[territoryId];
+                            const bonusPoints = territoryInfo.points;
+                            totalBonus += bonusPoints;
+                            controlledTerritories.push({
+                                name: territoryInfo.name,
+                                bonus: bonusPoints,
+                                bonusDescription: territoryInfo.bonus
+                            });
+                        }
+                    });
+                    
+                    if (totalBonus > 0) {
+                        const reason = `Territory Control Bonus: ${controlledTerritories.map(t => t.name).join(', ')}`;
+                        const details = {
+                            territories: controlledTerritories,
+                            totalBonus: totalBonus,
+                            family: familyName,
+                            type: 'weekly_territory_bonus'
+                        };
+                        
+                        return recordPointsToHistory(userId, userEmail, totalBonus, reason, 'territory_control', details)
+                            .then(() => {
+                                console.log(`✅ Territory bonuses recorded: ${totalBonus} points for ${userEmail}`);
+                                return totalBonus;
+                            });
+                    }
+                    return 0;
+                })
+                .catch((error) => {
+                    console.error('Error processing territory bonuses:', error);
+                    return 0;
+                });
+        }
+
+        // Process family war rewards with points history
+        function processWarRewards(userId, userEmail, warData, userFamily) {
+            if (warData.status === 'completed') {
+                let pointsEarned = 0;
+                let reason = '';
+                let details = {
+                    warId: warData.id,
+                    warName: warData.name,
+                    family1: warData.family1,
+                    family2: warData.family2,
+                    userFamily: userFamily
+                };
+
+                // Check if user's family won
+                const userFamilyWon = (warData.winner === userFamily);
+                const userFamilyScore = (warData.family1 === userFamily) ? warData.score1 : warData.score2;
+
+                if (userFamilyWon) {
+                    pointsEarned += warConfig.victory_points;
+                    reason = `Family War Victory: ${warData.name}`;
+                    details.victory = true;
+                    details.victoryPoints = warConfig.victory_points;
+                } else {
+                    pointsEarned += warConfig.participation_points;
+                    reason = `Family War Participation: ${warData.name}`;
+                    details.victory = false;
+                    details.participationPoints = warConfig.participation_points;
+                }
+
+                // Add performance bonus based on score
+                if (userFamilyScore > 1000) {
+                    pointsEarned += warConfig.top_performer_bonus;
+                    details.topPerformerBonus = warConfig.top_performer_bonus;
+                    reason += ' (Top Performer)';
+                }
+
+                details.totalPoints = pointsEarned;
+                details.finalScore = userFamilyScore;
+
+                if (pointsEarned > 0) {
+                    return recordPointsToHistory(userId, userEmail, pointsEarned, reason, 'family_war', details)
+                        .then(() => {
+                            console.log(`✅ War rewards recorded: ${pointsEarned} points for ${userEmail}`);
+                            return pointsEarned;
+                        });
+                }
+            }
+            return Promise.resolve(0);
+        }
+
+        // Process weekly bonuses with points history
+        function processWeeklyBonuses(userId, userEmail, familyName) {
+            database.ref('weeklyBonuses').once('value')
+                .then((snapshot) => {
+                    if (!snapshot.exists()) return;
+                    
+                    const bonuses = snapshot.val();
+                    let totalBonus = 0;
+                    let earnedBonuses = [];
+                    
+                    Object.keys(bonuses).forEach(bonusId => {
+                        const bonus = bonuses[bonusId];
+                        if (bonus.winner === familyName && bonus.active) {
+                            const bonusPoints = weeklyBonusConfig[bonusId]?.points || bonus.value;
+                            totalBonus += bonusPoints;
+                            earnedBonuses.push({
+                                name: bonus.name,
+                                points: bonusPoints,
+                                description: bonus.description
+                            });
+                        }
+                    });
+                    
+                    if (totalBonus > 0) {
+                        const reason = `Weekly Bonuses: ${earnedBonuses.map(b => b.name).join(', ')}`;
+                        const details = {
+                            bonuses: earnedBonuses,
+                            totalBonus: totalBonus,
+                            family: familyName,
+                            week: new Date().toISOString().slice(0, 10)
+                        };
+                        
+                        return recordPointsToHistory(userId, userEmail, totalBonus, reason, 'weekly_bonus', details)
+                            .then(() => {
+                                console.log(`✅ Weekly bonuses recorded: ${totalBonus} points for ${userEmail}`);
+                                return totalBonus;
+                            });
+                    }
+                    return 0;
+                })
+                .catch((error) => {
+                    console.error('Error processing weekly bonuses:', error);
+                    return 0;
+                });
+        }
+
+        // Process Omertà challenge rewards with points history
+        function processChallengeRewards(userId, userEmail, challengeData, userFamily) {
+            if (challengeData.status === 'completed') {
+                let pointsEarned = 0;
+                let reason = '';
+                let details = {
+                    challengeId: challengeData.id,
+                    challengeName: challengeData.name,
+                    challengerFamily: challengeData.challengerFamily,
+                    defenderFamily: challengeData.defenderFamily,
+                    userFamily: userFamily,
+                    stakes: challengeData.stakes
+                };
+
+                // Check if user's family won
+                const userFamilyWon = (challengeData.winner === userFamily);
+                const userFamilyScore = (challengeData.challengerFamily === userFamily) ? 
+                    challengeData.challengerPoints : challengeData.defenderPoints;
+
+                if (userFamilyWon) {
+                    pointsEarned += challengeConfig.victory_points;
+                    reason = `Omertà Challenge Victory: ${challengeData.name}`;
+                    details.victory = true;
+                    details.victoryPoints = challengeConfig.victory_points;
+                    details.prize = challengeData.prize;
+                } else {
+                    pointsEarned += challengeConfig.participation_points;
+                    reason = `Omertà Challenge Participation: ${challengeData.name}`;
+                    details.victory = false;
+                    details.participationPoints = challengeConfig.participation_points;
+                }
+
+                details.totalPoints = pointsEarned;
+                details.finalScore = userFamilyScore;
+
+                if (pointsEarned > 0) {
+                    return recordPointsToHistory(userId, userEmail, pointsEarned, reason, 'omerta_challenge', details)
+                        .then(() => {
+                            console.log(`✅ Challenge rewards recorded: ${pointsEarned} points for ${userEmail}`);
+                            return pointsEarned;
+                        });
+                }
+            }
+            return Promise.resolve(0);
+        }
+
+        // Process tribute system distributions with points history
+        function processTributeDistributions(userId, userEmail, familyName, userRank, totalFamilyRespect) {
+            let tributePoints = 0;
+            let reason = '';
+            let details = {
+                family: familyName,
+                userRank: userRank,
+                totalFamilyRespect: totalFamilyRespect,
+                distributionDate: new Date().toISOString().slice(0, 10)
+            };
+
+            // Calculate tribute based on rank
+            if (userRank === 1) { // Don
+                tributePoints = Math.floor(totalFamilyRespect * tributeConfig.don_percentage);
+                reason = `Monthly Tribute: Don's Share`;
+                details.role = 'don';
+                details.percentage = tributeConfig.don_percentage * 100;
+            } else if (userRank === 2) { // Underboss
+                tributePoints = Math.floor(totalFamilyRespect * tributeConfig.underboss_percentage);
+                reason = `Monthly Tribute: Underboss Share`;
+                details.role = 'underboss';
+                details.percentage = tributeConfig.underboss_percentage * 100;
+            } else if (userRank <= 5) { // Capos (top 5)
+                tributePoints = Math.floor(totalFamilyRespect * tributeConfig.capo_percentage);
+                reason = `Monthly Tribute: Capo Share`;
+                details.role = 'capo';
+                details.percentage = tributeConfig.capo_percentage * 100;
+            }
+
+            details.tributePoints = tributePoints;
+
+            if (tributePoints > 0) {
+                return recordPointsToHistory(userId, userEmail, tributePoints, reason, 'tribute_system', details)
+                    .then(() => {
+                        console.log(`✅ Tribute distribution recorded: ${tributePoints} points for ${userEmail}`);
+                        return tributePoints;
+                    });
+            }
+            return Promise.resolve(0);
+        }
+
+        // Load user's points history
+        function loadPointsHistory() {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const pointsHistoryList = document.getElementById('points-history-list');
+            pointsHistoryList.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+            database.ref('pointsHistory').orderByChild('customerEmail').equalTo(user.email).once('value')
+                .then((snapshot) => {
+                    pointsHistoryList.innerHTML = '';
+
+                    if (!snapshot.exists()) {
+                        pointsHistoryList.innerHTML = `
+                            <div class="empty-notifications">
+                                <div>📊</div>
+                                <p>No points history yet</p>
+                                <p>Complete jobs and participate in family activities to earn points!</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    const pointsHistory = [];
+                    snapshot.forEach(historySnapshot => {
+                        const history = historySnapshot.val();
+                        history.id = historySnapshot.key;
+                        pointsHistory.push(history);
+                    });
+
+                    // Sort by timestamp (newest first)
+                    pointsHistory.sort((a, b) => b.timestamp - a.timestamp);
+
+                    pointsHistory.forEach(history => {
+                        const historyItem = document.createElement('div');
+                        historyItem.className = `points-history-item ${history.source || ''}`;
+                        
+                        const date = history.timestamp ? new Date(history.timestamp).toLocaleString() : 'Unknown date';
+                        const sourceName = getSourceDisplayName(history.source);
+                        const details = history.details || {};
+
+                        let detailsHTML = '';
+                        if (details.territories) {
+                            detailsHTML = `<div>Controlled Territories: ${details.territories.map(t => t.name).join(', ')}</div>`;
+                        } else if (details.warName) {
+                            detailsHTML = `<div>War: ${details.warName} | ${details.victory ? 'VICTORY' : 'Participation'}</div>`;
+                        } else if (details.bonuses) {
+                            detailsHTML = `<div>Bonuses Earned: ${details.bonuses.map(b => b.name).join(', ')}</div>`;
+                        } else if (details.challengeName) {
+                            detailsHTML = `<div>Challenge: ${details.challengeName} | ${details.victory ? 'VICTORY' : 'Participation'}</div>`;
+                        } else if (details.role) {
+                            detailsHTML = `<div>Role: ${details.role} | ${details.percentage}% of family respect</div>`;
+                        }
+
+                        historyItem.innerHTML = `
+                            <div class="points-history-header">
+                                <div class="points-history-reason">${history.reason || 'Points Awarded'}</div>
+                                <div class="points-history-date">${date}</div>
+                            </div>
+                            <div class="points-history-details">
+                                ${detailsHTML}
+                            </div>
+                            <div class="points-history-meta">
+                                <span class="points-history-source">${sourceName}</span>
+                                <span class="points-history-amount">+${history.pointsAdded} Respect</span>
+                            </div>
+                        `;
+
+                        pointsHistoryList.appendChild(historyItem);
+                    });
+                })
+                .catch((error) => {
+                    console.error('Error loading points history:', error);
+                    pointsHistoryList.innerHTML = `
+                        <div class="empty-notifications">
+                            <div>❌</div>
+                            <p>Error loading points history</p>
+                        </div>
+                    `;
+                });
+        }
+
+        // Get display name for points source
+        function getSourceDisplayName(source) {
+            const sourceNames = {
+                'territory_control': '🏰 Territory Control',
+                'family_war': '⚔️ Family War',
+                'weekly_bonus': '💰 Weekly Bonus',
+                'omerta_challenge': '🎯 Omertà Challenge',
+                'tribute_system': '👑 Tribute System',
+                'job_completion': '💼 Job Completion',
+                'manual_adjustment': '✏️ Manual Adjustment',
+                'redemption': '🎁 Redemption'
+            };
+            return sourceNames[source] || source;
+        }
+
+        // ========== PAGE NAVIGATION FUNCTIONS ==========
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+        }
+        
+        function showSelection() {
+            showPage('selection-page');
+        }
+        
+        function showLogin(type) {
+            showPage(`${type}-login`);
+        }
+        
+        function showCustomerDashboard() {
+            showPage('customer-dashboard');
+            // Hide points history section, show main dashboard
+            document.getElementById('points-history-section').style.display = 'none';
+            document.getElementById('territory-control-section').style.display = 'block';
+            document.getElementById('family-wars-section').style.display = 'block';
+            document.getElementById('weekly-bonuses-section').style.display = 'block';
+            document.getElementById('omerta-challenges-section').style.display = 'block';
+            document.getElementById('family-hierarchy-section').style.display = 'block';
+            document.getElementById('tribute-system-section').style.display = 'block';
+            document.querySelector('.geographical-map').style.display = 'block';
+            loadCustomerData();
+        }
+
+        function showPointsHistory() {
+            showPage('customer-dashboard');
+            // Hide main dashboard sections, show points history
+            document.getElementById('points-history-section').style.display = 'block';
+            document.getElementById('territory-control-section').style.display = 'none';
+            document.getElementById('family-wars-section').style.display = 'none';
+            document.getElementById('weekly-bonuses-section').style.display = 'none';
+            document.getElementById('omerta-challenges-section').style.display = 'none';
+            document.getElementById('family-hierarchy-section').style.display = 'none';
+            document.getElementById('tribute-system-section').style.display = 'none';
+            document.querySelector('.geographical-map').style.display = 'none';
+            document.getElementById('individual-rankings-section').style.display = 'none';
+            loadPointsHistory();
+        }
+        
+        function showLogoutPage() {
+            showPage('logout-page');
+        }
+        
+        function goToHomepage() {
+            window.location.href = "index.html";
+        }
+
+        // ========== ENHANCED FEATURE LOADING FUNCTIONS ==========
+
+        // Load Territory Control System
+        function loadTerritoryControl() {
+            const territoryGrid = document.getElementById('territory-grid');
+            territoryGrid.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            
+            database.ref('territories').once('value')
+                .then((snapshot) => {
+                    if (!snapshot.exists()) {
+                        // Initialize territories if they don't exist
+                        const initialTerritories = {};
+                        Object.keys(territoriesConfig).forEach(territoryId => {
+                            initialTerritories[territoryId] = {
+                                controlledBy: null,
+                                controlledSince: null,
+                                familyName: null,
+                                currentBonus: territoriesConfig[territoryId].value,
+                                lastDistribution: null
+                            };
+                        });
+                        
+                        return database.ref('territories').set(initialTerritories)
+                            .then(() => {
+                                return database.ref('territories').once('value');
+                            });
+                    }
+                    return snapshot;
+                })
+                .then((snapshot) => {
+                    const territoriesData = snapshot.val();
+                    let territoryHTML = '';
+                    
+                    Object.keys(territoriesConfig).forEach(territoryId => {
+                        const territory = territoriesConfig[territoryId];
+                        const territoryData = territoriesData[territoryId];
+                        const isControlledByUser = territoryData.familyName === userFamily;
+                        const cardClass = territoryData.controlledBy ? 
+                            (isControlledByUser ? 'territory-card controlled-by-user' : 'territory-card controlled') : 
+                            'territory-card';
+                        
+                        territoryHTML += `
+                            <div class="${cardClass}">
+                                <div class="territory-name">${territory.name}</div>
+                                <div class="territory-controller">
+                                    ${territoryData.controlledBy ? 
+                                        `Controlled by: ${territoryData.familyName}` : 
+                                        'Uncontrolled Territory'}
+                                </div>
+                                <div class="territory-bonus">${territory.bonus}</div>
+                                <div style="font-size: 0.8rem; color: #2ecc71; margin-top: 0.5rem;">
+                                    Weekly Bonus: +${territory.points} Points
+                                </div>
+                                ${isControlledByUser ? 
+                                    '<div style="color: #2ecc71; font-size: 0.8rem; margin-top: 0.5rem;">✓ You control this territory</div>' : 
+                                    ''}
+                            </div>
+                        `;
+                    });
+                    
+                    territoryGrid.innerHTML = territoryHTML;
+                })
+                .catch((error) => {
+                    console.error('Error loading territory control:', error);
+                    territoryGrid.innerHTML = '<div class="empty-state"><div>❌</div><p>Error loading territories</p></div>';
+                });
+        }
+
+        // Load Family Wars
+        function loadFamilyWars() {
+            const activeWars = document.getElementById('active-wars');
+            activeWars.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            
+            database.ref('familyEvents').orderByChild('type').equalTo('war').once('value')
+                .then((snapshot) => {
+                    if (!snapshot.exists()) {
+                        activeWars.innerHTML = '<div class="empty-state"><div>⚔️</div><p>No active family wars</p><p>Families are at peace... for now</p></div>';
+                        return;
+                    }
+                    
+                    const wars = [];
+                    snapshot.forEach(warSnapshot => {
+                        const war = warSnapshot.val();
+                        war.id = warSnapshot.key;
+                        wars.push(war);
+                    });
+                    
+                    // Filter active wars (not expired)
+                    const now = Date.now();
+                    const activeWarsList = wars.filter(war => war.endTime > now);
+                    
+                    if (activeWarsList.length === 0) {
+                        activeWars.innerHTML = '<div class="empty-state"><div>⚔️</div><p>No active family wars</p><p>Families are at peace... for now</p></div>';
+                        return;
+                    }
+                    
+                    let warsHTML = '';
+                    
+                    activeWarsList.forEach(war => {
+                        const timeLeft = war.endTime - now;
+                        const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
+                        const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                        
+                        warsHTML += `
+                            <div class="war-card">
+                                <div class="war-families">
+                                    <div class="war-family">
+                                        <div class="war-family-name">${war.family1}</div>
+                                        <div>${war.score1 || 0} Points</div>
+                                    </div>
+                                    <div class="war-vs">VS</div>
+                                    <div class="war-family">
+                                        <div class="war-family-name">${war.family2}</div>
+                                        <div>${war.score2 || 0} Points</div>
+                                    </div>
+                                </div>
+                                <div class="war-stats">
+                                    <div>Prize: ${war.prize}</div>
+                                    <div>${war.participants || 0} Members</div>
+                                </div>
+                                <div class="war-timer">
+                                    ${hoursLeft}h ${minutesLeft}m remaining
+                                </div>
+                                <div style="text-align: center; margin-top: 0.5rem; font-size: 0.8rem; color: #2ecc71;">
+                                    Rewards: Victory ${warConfig.victory_points}pts | Participation ${warConfig.participation_points}pts
+                                </div>
+                                ${war.family1 === userFamily || war.family2 === userFamily ? 
+                                    '<div style="text-align: center; margin-top: 0.5rem; color: #e74c3c; font-weight: bold;">⚔️ YOUR FAMILY IS AT WAR!</div>' : 
+                                    ''}
+                            </div>
+                        `;
+                    });
+                    
+                    activeWars.innerHTML = warsHTML;
+                })
+                .catch((error) => {
+                    console.error('Error loading family wars:', error);
+                    activeWars.innerHTML = '<div class="empty-state"><div>❌</div><p>Error loading wars</p></div>';
+                });
+        }
+
+        // Load Weekly Bonuses
+        function loadWeeklyBonuses() {
+            const bonusGrid = document.getElementById('bonus-grid');
+            bonusGrid.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            
+            database.ref('weeklyBonuses').once('value')
+                .then((snapshot) => {
+                    if (!snapshot.exists()) {
+                        // Create default weekly bonuses
+                        const defaultBonuses = {
+                            'top_family': {
+                                name: 'Top Family Bonus',
+                                description: 'Awarded to the family with highest weekly growth',
+                                value: 500,
+                                type: 'points',
+                                active: true,
+                                winner: null
+                            },
+                            'most_active': {
+                                name: 'Most Active Family',
+                                description: 'Family with most completed jobs this week',
+                                value: 300,
+                                type: 'points', 
+                                active: true,
+                                winner: null
+                            },
+                            'territory_dominance': {
+                                name: 'Territory Dominance',
+                                description: 'Family controlling the most territories',
+                                value: 400,
+                                type: 'points',
+                                active: true,
+                                winner: null
+                            }
+                        };
+                        
+                        return database.ref('weeklyBonuses').set(defaultBonuses)
+                            .then(() => {
+                                return database.ref('weeklyBonuses').once('value');
+                            });
+                    }
+                    return snapshot;
+                })
+                .then((snapshot) => {
+                    const bonuses = snapshot.val();
+                    let bonusHTML = '';
+                    
+                    Object.keys(bonuses).forEach(bonusId => {
+                        const bonus = bonuses[bonusId];
+                        const bonusClass = bonus.active ? 'bonus-card active' : 'bonus-card';
+                        const isUserFamilyWinner = bonus.winner === userFamily;
+                        const winnerText = isUserFamilyWinner ? 
+                            '<div style="color: #2ecc71; font-weight: bold; margin-top: 0.5rem;">🏆 YOUR FAMILY WON!</div>' : 
+                            (bonus.winner ? `<div style="color: #ccc; font-size: 0.8rem; margin-top: 0.5rem;">Winner: ${bonus.winner}</div>` : '');
+                        
+                        bonusHTML += `
+                            <div class="${bonusClass}">
+                                <div class="bonus-name">${bonus.name}</div>
+                                <div class="bonus-value">+${bonus.value} Points</div>
+                                <div class="bonus-description">${bonus.description}</div>
+                                ${winnerText}
+                            </div>
+                        `;
+                    });
+                    
+                    bonusGrid.innerHTML = bonusHTML;
+                })
+                .catch((error) => {
+                    console.error('Error loading weekly bonuses:', error);
+                    bonusGrid.innerHTML = '<div class="empty-state"><div>❌</div><p>Error loading bonuses</p></div>';
+                });
+        }
+
+        // Load Omertà Challenges
+        function loadOmertaChallenges() {
+            const challengeList = document.getElementById('challenge-list');
+            challengeList.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            
+            database.ref('challenges').orderByChild('status').equalTo('active').once('value')
+                .then((snapshot) => {
+                    if (!snapshot.exists()) {
+                        challengeList.innerHTML = '<div class="empty-state"><div>🎯</div><p>No active Omertà challenges</p><p>The Dons are considering their moves...</p></div>';
+                        return;
+                    }
+                    
+                    const challenges = [];
+                    snapshot.forEach(challengeSnapshot => {
+                        const challenge = challengeSnapshot.val();
+                        challenge.id = challengeSnapshot.key;
+                        challenges.push(challenge);
+                    });
+                    
+                    let challengesHTML = '';
+                    
+                    challenges.forEach(challenge => {
+                        const timeLeft = challenge.endTime - Date.now();
+                        const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                        const hoursLeft = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        
+                        challengesHTML += `
+                            <div class="challenge-card">
+                                <div class="challenge-header">
+                                    <div style="font-weight: bold; color: #d4af37;">Omertà Challenge</div>
+                                    <div style="font-size: 0.8rem; color: #ccc;">${daysLeft}d ${hoursLeft}h left</div>
+                                </div>
+                                <div class="challenge-dons">
+                                    <div class="challenge-don">
+                                        <div class="challenge-don-name">${challenge.challengerFamily}</div>
+                                        <div>${challenge.challengerPoints || 0}</div>
+                                    </div>
+                                    <div class="challenge-vs">VS</div>
+                                    <div class="challenge-don">
+                                        <div class="challenge-don-name">${challenge.defenderFamily}</div>
+                                        <div>${challenge.defenderPoints || 0}</div>
+                                    </div>
+                                </div>
+                                <div class="challenge-stakes">
+                                    Stakes: ${challenge.stakes}
+                                </div>
+                                <div class="challenge-timer">
+                                    Winner takes ${challenge.prize}
+                                </div>
+                                <div style="text-align: center; margin-top: 0.5rem; font-size: 0.8rem; color: #2ecc71;">
+                                    Rewards: Victory ${challengeConfig.victory_points}pts | Participation ${challengeConfig.participation_points}pts
+                                </div>
+                                ${challenge.challengerFamily === userFamily || challenge.defenderFamily === userFamily ? 
+                                    '<div class="challenge-actions"><button class="btn btn-warning" style="font-size: 0.8rem;">Join Your Family\'s Fight</button></div>' : 
+                                    ''}
+                            </div>
+                        `;
+                    });
+                    
+                    challengeList.innerHTML = challengesHTML;
+                })
+                .catch((error) => {
+                    console.error('Error loading Omertà challenges:', error);
+                    challengeList.innerHTML = '<div class="empty-state"><div>❌</div><p>Error loading challenges</p></div>';
+                });
+        }
+
+        // Calculate monthly reset timer
+        function updateResetTimer() {
+            const now = new Date();
+            const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+            const timeLeft = nextMonth - now;
+            
+            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            
+            document.getElementById('reset-timer').textContent = 
+                `${days}d ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Calculate Total Respect (Matches Admin Logic)
+        function calculateTotalRespect(userEmail) {
+            return new Promise((resolve) => {
+                let totalRespect = 0;
+                
+                console.log('🧮 Calculating total respect for:', userEmail);
+                
+                // Query all data sources like Admin does
+                Promise.all([
+                    database.ref('customers').orderByChild('email').equalTo(userEmail).once('value'),
+                    database.ref('pointsHistory').orderByChild('customerEmail').equalTo(userEmail).once('value'),
+                    database.ref('redemptions').orderByChild('customerEmail').equalTo(userEmail).once('value')
+                ])
+                .then(([ordersSnapshot, pointsSnapshot, redemptionsSnapshot]) => {
+                    
+                    console.log('📊 Data sources found:', {
+                        orders: ordersSnapshot.numChildren(),
+                        pointsHistory: pointsSnapshot.numChildren(),
+                        redemptions: redemptionsSnapshot.numChildren()
+                    });
+
+                    // Calculate from orders
+                    if (ordersSnapshot.exists()) {
+                        ordersSnapshot.forEach(orderSnapshot => {
+                            const order = orderSnapshot.val();
+                            const points = parseInt(order.points) || 0;
+                            totalRespect += points;
+                        });
+                    }
+
+                    // Calculate from points history (NEW: This now includes ALL points)
+                    if (pointsSnapshot.exists()) {
+                        pointsSnapshot.forEach(pointSnapshot => {
+                            const point = pointSnapshot.val();
+                            const points = parseInt(point.pointsAdded) || 0;
+                            totalRespect += points;
+                        });
+                    }
+
+                    // Subtract redeemed points
+                    if (redemptionsSnapshot.exists()) {
+                        redemptionsSnapshot.forEach(redemptionSnapshot => {
+                            const redemption = redemptionSnapshot.val();
+                            const points = parseInt(redemption.pointsUsed) || 0;
+                            totalRespect -= points;
+                        });
+                    }
+
+                    console.log('✅ Final respect for', userEmail + ':', totalRespect);
+                    resolve(totalRespect);
+                })
+                .catch(error => {
+                    console.error('❌ Respect calculation failed:', error);
+                    resolve(0);
+                });
+            });
+        }
+
+        // Load Family Hierarchy
+        function loadFamilyHierarchy(familyName) {
+            const hierarchyLevels = document.getElementById('family-hierarchy-levels');
+            hierarchyLevels.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            
+            database.ref('rankings').once('value')
+                .then((snapshot) => {
+                    if (!snapshot.exists()) {
+                        hierarchyLevels.innerHTML = '<div class="empty-state"><div>👥</div><p>No hierarchy data available</p></div>';
+                        return;
+                    }
+                    
+                    const familyMembers = [];
+                    snapshot.forEach(rankSnapshot => {
+                        const rankData = rankSnapshot.val();
+                        if (getGeographicalLocation(rankData.email) === familyName) {
+                            familyMembers.push(rankData);
+                        }
+                    });
+                    
+                    // Sort by points
+                    familyMembers.sort((a, b) => b.points - a.points);
+                    
+                    let hierarchyHTML = '';
+                    
+                    // Don (Rank 1)
+                    if (familyMembers[0]) {
+                        hierarchyHTML += `
+                            <div class="hierarchy-level">
+                                <div class="hierarchy-role">👑 The Don</div>
+                                <div class="hierarchy-member">${familyMembers[0].name}</div>
+                                <div style="font-size: 0.8rem; color: #d4af37;">${familyMembers[0].points} Respect</div>
+                            </div>
+                        `;
+                    }
+                    
+                    // Underboss (Rank 2)
+                    if (familyMembers[1]) {
+                        hierarchyHTML += `
+                            <div class="hierarchy-level">
+                                <div class="hierarchy-role">⚔️ Underboss</div>
+                                <div class="hierarchy-member">${familyMembers[1].name}</div>
+                                <div style="font-size: 0.8rem; color: #d4af37;">${familyMembers[1].points} Respect</div>
+                            </div>
+                        `;
+                    }
+                    
+                    // Capos (Top 10%)
+                    const capoCount = Math.max(1, Math.floor(familyMembers.length * 0.1));
+                    const capos = familyMembers.slice(2, 2 + capoCount);
+                    if (capos.length > 0) {
+                        hierarchyHTML += `
+                            <div class="hierarchy-level">
+                                <div class="hierarchy-role">💰 Capos</div>
+                                <div class="hierarchy-member">${capos.length} Members</div>
+                                <div style="font-size: 0.8rem; color: #ccc;">Top ${capoCount} performers</div>
+                            </div>
+                        `;
+                    }
+                    
+                    // Soldiers (Top 50%)
+                    const soldierCount = Math.max(1, Math.floor(familyMembers.length * 0.5));
+                    hierarchyHTML += `
+                        <div class="hierarchy-level">
+                            <div class="hierarchy-role">⚡ Soldiers</div>
+                            <div class="hierarchy-member">${soldierCount} Members</div>
+                            <div style="font-size: 0.8rem; color: #ccc;">Active contributors</div>
+                        </div>
+                    `;
+                    
+                    hierarchyLevels.innerHTML = hierarchyHTML;
+                })
+                .catch((error) => {
+                    console.error('Error loading family hierarchy:', error);
+                    hierarchyLevels.innerHTML = '<div class="empty-state"><div>❌</div><p>Error loading hierarchy</p></div>';
+                });
+        }
+
+        // Load Tribute System
+        function loadTributeSystem(familyName) {
+            const tributeStats = document.getElementById('tribute-stats');
+            tributeStats.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            
+            database.ref('rankings').once('value')
+                .then((snapshot) => {
+                    if (!snapshot.exists()) {
+                        tributeStats.innerHTML = '<div class="empty-state"><div>💰</div><p>No tribute data available</p></div>';
+                        return;
+                    }
+                    
+                    const familyMembers = [];
+                    let familyTotalRespect = 0;
+                    
+                    snapshot.forEach(rankSnapshot => {
+                        const rankData = rankSnapshot.val();
+                        if (getGeographicalLocation(rankData.email) === familyName) {
+                            familyMembers.push(rankData);
+                            familyTotalRespect += rankData.points;
+                        }
+                    });
+                    
+                    // Sort by points
+                    familyMembers.sort((a, b) => b.points - a.points);
+                    
+                    // Calculate tribute distributions
+                    const donTribute = Math.floor(familyTotalRespect * tributeConfig.don_percentage);
+                    const underbossTribute = Math.floor(familyTotalRespect * tributeConfig.underboss_percentage);
+                    const capoTribute = Math.floor(familyTotalRespect * tributeConfig.capo_percentage);
+                    
+                    const capoCount = Math.max(1, Math.floor(familyMembers.length * 0.1));
+                    const totalCapoTribute = capoTribute * capoCount;
+                    
+                    const tributeHTML = `
+                        <div class="tribute-stat">
+                            <div class="tribute-value">${donTribute}</div>
+                            <div class="tribute-label">Don's Cut (${tributeConfig.don_percentage * 100}%)</div>
+                        </div>
+                        <div class="tribute-stat">
+                            <div class="tribute-value">${underbossTribute}</div>
+                            <div class="tribute-label">Underboss (${tributeConfig.underboss_percentage * 100}%)</div>
+                        </div>
+                        <div class="tribute-stat">
+                            <div class="tribute-value">${totalCapoTribute}</div>
+                            <div class="tribute-label">Capos Share (${capoCount}x${tributeConfig.capo_percentage * 100}%)</div>
+                        </div>
+                        <div class="tribute-stat">
+                            <div class="tribute-value">${familyTotalRespect}</div>
+                            <div class="tribute-label">Family Total</div>
+                        </div>
+                    `;
+                    
+                    tributeStats.innerHTML = tributeHTML;
+                })
+                .catch((error) => {
+                    console.error('Error loading tribute system:', error);
+                    tributeStats.innerHTML = '<div class="empty-state"><div>❌</div><p>Error loading tribute data</p></div>';
+                });
+        }
+
+        // Calculate Internal Role
+        function calculateInternalRole(userEmail, userPoints, familyName) {
+            return new Promise((resolve) => {
+                database.ref('rankings').once('value')
+                    .then((snapshot) => {
+                        if (!snapshot.exists()) {
+                            resolve(internalRoles.associate);
+                            return;
+                        }
+                        
+                        const familyMembers = [];
+                        let userRank = 0;
+                        
+                        snapshot.forEach(rankSnapshot => {
+                            const rankData = rankSnapshot.val();
+                            if (getGeographicalLocation(rankData.email) === familyName) {
+                                familyMembers.push(rankData);
+                                if (rankData.email === userEmail) {
+                                    userRank = rankData.rank;
+                                }
+                            }
+                        });
+                        
+                        // Sort by points for hierarchy
+                        familyMembers.sort((a, b) => b.points - a.points);
+                        
+                        let role = internalRoles.associate;
+                        
+                        // Determine role based on position in family
+                        if (userRank === 1) {
+                            role = internalRoles.don;
+                        } else if (userRank === 2) {
+                            role = internalRoles.underboss;
+                        } else if (userRank <= Math.max(3, Math.floor(familyMembers.length * 0.1))) {
+                            role = internalRoles.capo;
+                        } else if (userPoints >= 1000) {
+                            role = internalRoles.soldier;
+                        }
+                        
+                        // Update UI
+                        document.getElementById('internal-role').textContent = role.title;
+                        document.getElementById('internal-role').title = role.description;
+                        
+                        resolve(role);
+                    })
+                    .catch((error) => {
+                        console.error('Error calculating internal role:', error);
+                        resolve(internalRoles.associate);
+                    });
+            });
+        }
+
+        // Load Family Geographical Rankings
+        function loadFamilyGeographicalRankings() {
+            const familiesOverview = document.getElementById('families-overview');
+            familiesOverview.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            
+            database.ref('rankings').once('value')
+                .then((snapshot) => {
+                    if (!snapshot.exists()) {
+                        familiesOverview.innerHTML = '<div class="empty-state"><div>👥</div><p>No family rankings yet</p><p>The Don will generate rankings soon</p></div>';
+                        return;
+                    }
+                    
+                    const rankings = [];
+                    snapshot.forEach(rankSnapshot => {
+                        const rankData = rankSnapshot.val();
+                        rankings.push(rankData);
+                    });
+                    
+                    // Calculate family statistics
+                    familyStats = {};
+                    families.forEach(family => {
+                        familyStats[family] = { 
+                            members: 0, 
+                            totalRespect: 0, 
+                            avgRespect: 0,
+                            highestRespect: 0,
+                            highestMember: '',
+                            rankDistribution: {
+                                associate: 0,
+                                soldier: 0,
+                                capo: 0,
+                                underboss: 0,
+                                boss: 0
+                            }
+                        };
+                    });
+                    
+                    rankings.forEach(rank => {
+                        const family = getGeographicalLocation(rank.email);
+                        familyStats[family].members++;
+                        familyStats[family].totalRespect += rank.points || 0;
+                        
+                        // Determine rank for distribution
+                        let memberRank = 'associate';
+                        if (rank.points >= 1000 && rank.points < 3000) memberRank = 'soldier';
+                        else if (rank.points >= 3000 && rank.points < 6000) memberRank = 'capo';
+                        else if (rank.points >= 6000 && rank.points < 10000) memberRank = 'underboss';
+                        else if (rank.points >= 10000) memberRank = 'boss';
+                        
+                        familyStats[family].rankDistribution[memberRank]++;
+                        
+                        if (rank.points > familyStats[family].highestRespect) {
+                            familyStats[family].highestRespect = rank.points;
+                            familyStats[family].highestMember = rank.name || rank.email;
+                        }
+                    });
+                    
+                    // Calculate averages and find leading family
+                    let maxTotalRespect = 0;
+                    Object.keys(familyStats).forEach(family => {
+                        if (familyStats[family].members > 0) {
+                            familyStats[family].avgRespect = Math.round(familyStats[family].totalRespect / familyStats[family].members);
+                        }
+                        
+                        if (familyStats[family].totalRespect > maxTotalRespect) {
+                            maxTotalRespect = familyStats[family].totalRespect;
+                            leadingFamily = family;
+                        }
+                    });
+                    
+                    // Sort families by total respect
+                    const sortedFamilies = Object.keys(familyStats).sort((a, b) => 
+                        familyStats[b].totalRespect - familyStats[a].totalRespect
+                    );
+                    
+                    let familiesHTML = '<div class="families-list">';
+                    
+                    // Add leading family card first
+                    if (leadingFamily) {
+                        const leadingStats = familyStats[leadingFamily];
+                        familiesHTML += `
+                            <div class="leading-family-card" onclick="showLeadingFamilyModal()">
+                                <div class="leading-family-badge">🏆 LEADING FAMILY</div>
+                                <h4 class="family-name">${leadingFamily}</h4>
+                                <div class="family-stats">
+                                    <div>👥 ${leadingStats.members} Members</div>
+                                    <div>⭐ ${leadingStats.totalRespect} Total Respect</div>
+                                    <div>📊 ${leadingStats.avgRespect} Avg Respect</div>
+                                </div>
+                                <div style="margin-top: 0.5rem; font-size: 0.8rem; color: #d4af37;">
+                                    Click to view detailed breakdown
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    // Add other families
+                    sortedFamilies.forEach(family => {
+                        if (family !== leadingFamily) {
+                            const stats = familyStats[family];
+                            familiesHTML += `
+                                <div class="family-card" onclick="showFamilyModal('${family}')">
+                                    <h4 class="family-name">${family}</h4>
+                                    <div class="family-stats">
+                                        <div>👥 ${stats.members} Members</div>
+                                        <div>⭐ ${stats.totalRespect} Total Respect</div>
+                                        <div>📊 ${stats.avgRespect} Avg Respect</div>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    });
+                    
+                    familiesHTML += '</div>';
+                    familiesOverview.innerHTML = familiesHTML;
+                })
+                .catch((error) => {
+                    console.error('Error loading family rankings:', error);
+                    familiesOverview.innerHTML = '<div class="empty-state"><div>❌</div><p>Error loading family rankings</p></div>';
+                });
+        }
+        
+        // Show Family Modal
+        function showFamilyModal(familyName) {
+            const modal = document.getElementById('family-modal');
+            const modalTitle = document.getElementById('modal-family-name');
+            const modalStats = document.getElementById('modal-family-stats');
+            const modalDescription = document.getElementById('modal-family-description');
+            
+            modalTitle.textContent = familyName;
+            
+            const stats = familyStats[familyName];
+            
+            modalStats.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${stats.members}</div>
+                    <div class="stat-label">Members</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.totalRespect}</div>
+                    <div class="stat-label">Total Respect</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.avgRespect}</div>
+                    <div class="stat-label">Average Respect</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.highestRespect}</div>
+                    <div class="stat-label">Highest Respect</div>
+                </div>
+            `;
+            
+            modalDescription.textContent = familyDescriptions[familyName];
+            modal.style.display = 'flex';
+        }
+        
+        // Show Leading Family Modal
+        function showLeadingFamilyModal() {
+            if (!leadingFamily) return;
+            
+            const modal = document.getElementById('leading-family-modal');
+            const modalTitle = document.getElementById('leading-family-name');
+            const modalStats = document.getElementById('leading-family-stats');
+            const rankDistribution = document.getElementById('rank-distribution');
+            const modalDescription = document.getElementById('leading-family-description');
+            const donInfo = document.getElementById('leading-family-don');
+            
+            modalTitle.textContent = leadingFamily;
+            
+            const stats = familyStats[leadingFamily];
+            
+            modalStats.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${stats.members}</div>
+                    <div class="stat-label">Total Members</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.totalRespect}</div>
+                    <div class="stat-label">Total Respect</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.avgRespect}</div>
+                    <div class="stat-label">Average Respect</div>
+                </div>
+            `;
+            
+            // Create rank distribution
+            rankDistribution.innerHTML = '';
+            Object.entries(stats.rankDistribution).forEach(([rank, count]) => {
+                if (count > 0) {
+                    rankDistribution.innerHTML += `
+                        <div class="rank-dist-item">
+                            <div class="rank-dist-count">${count}</div>
+                            <div class="rank-dist-label">${rank.charAt(0).toUpperCase() + rank.slice(1)}</div>
+                        </div>
+                    `;
+                }
+            });
+            
+            modalDescription.textContent = familyDescriptions[leadingFamily];
+            donInfo.textContent = `${stats.highestMember} - ${stats.highestRespect} Respect`;
+            
+            modal.style.display = 'flex';
+        }
+        
+        // Close Family Modal
+        function closeFamilyModal() {
+            document.getElementById('family-modal').style.display = 'none';
+        }
+        
+        // Close Leading Family Modal
+        function closeLeadingFamilyModal() {
+            document.getElementById('leading-family-modal').style.display = 'none';
+        }
+        
+        // Toggle Rankings View
+        function toggleRankingsView() {
+            const familySection = document.querySelector('.geographical-map');
+            const individualSection = document.getElementById('individual-rankings-section');
+            const viewButton = document.getElementById('view-rankings-btn');
+            
+            if (individualSection.style.display === 'none') {
+                familySection.style.display = 'none';
+                individualSection.style.display = 'block';
+                viewButton.textContent = 'View Family Territories';
+                loadIndividualRankings();
+            } else {
+                familySection.style.display = 'block';
+                individualSection.style.display = 'none';
+                viewButton.textContent = 'View Individual Rankings';
+            }
+        }
+
+        // Toggle Points History View
+        function togglePointsHistoryView() {
+            showPointsHistory();
+        }
+        
+        // Customer Login Handler
+        document.getElementById('customer-login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('customer-email').value;
+            const password = document.getElementById('customer-password').value;
+            const errorElement = document.getElementById('customer-error-message');
+            
+            errorElement.textContent = '';
+            
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    return database.ref('users/' + userCredential.user.uid).once('value')
+                        .then((snapshot) => {
+                            const userData = snapshot.val();
+                            if (userData && userData.role === 'customer') {
+                                currentUser = userCredential.user;
+                                showCustomerDashboard();
+                            } else {
+                                auth.signOut();
+                                throw new Error('This account is not registered as a customer');
+                            }
+                        });
+                })
+                .catch((error) => {
+                    errorElement.textContent = error.message;
+                    console.error('Login error:', error);
+                });
+        });
+        
+        // Logout Handler
+        document.getElementById('customer-logout-btn').addEventListener('click', () => {
+            auth.signOut().then(() => {
+                showLogoutPage();
+            });
+        });
+
+        // Rankings View Toggle
+        document.getElementById('view-rankings-btn').addEventListener('click', toggleRankingsView);
+
+        // Points History View Toggle
+        document.getElementById('view-points-history-btn').addEventListener('click', togglePointsHistoryView);
+        
+        // Load Customer Data
+        function loadCustomerData() {
+            const user = auth.currentUser;
+            if (!user) return;
+            
+            showLoading();
+            
+            database.ref('users/' + user.uid).once('value')
+                .then((userSnapshot) => {
+                    const userData = userSnapshot.val();
+                    
+                    if (!userData) {
+                        return initializeUserData(user.uid, user.email);
+                    }
+                    
+                    return userData;
+                })
+                .then((userData) => {
+                    return calculateTotalRespect(user.email)
+                        .then(totalRespect => {
+                            userFamily = getGeographicalLocation(user.email);
+                            updateRankDisplay(totalRespect, user.email);
+                            calculateInternalRole(user.email, totalRespect, userFamily);
+                            
+                            // Load all the enhanced features with points history integration
+                            loadTerritoryControl();
+                            loadFamilyWars();
+                            loadWeeklyBonuses();
+                            loadOmertaChallenges();
+                            loadFamilyHierarchy(userFamily);
+                            loadTributeSystem(userFamily);
+                            loadAvailableJobs();
+                            setupEventListeners();
+                            loadFamilyGeographicalRankings();
+                            loadNotifications();
+                            listenForNotifications();
+                            
+                            // Process and record points from various sources
+                            processEnhancedPoints(user.uid, user.email, userFamily, totalRespect);
+                            
+                            // Start reset timer
+                            updateResetTimer();
+                            setInterval(updateResetTimer, 1000);
+                        });
+                })
+                .catch((error) => {
+                    console.error('Error loading customer data:', error);
+                })
+                .finally(() => {
+                    hideLoading();
+                });
+        }
+
+        // Process enhanced points from all sources
+        function processEnhancedPoints(userId, userEmail, familyName, currentRespect) {
+            console.log('🔄 Processing enhanced points for:', userEmail);
+            
+            // Process territory bonuses
+            processTerritoryBonuses(userId, userEmail, familyName);
+            
+            // Process completed wars
+            database.ref('familyEvents').orderByChild('type').equalTo('war').once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        snapshot.forEach(warSnapshot => {
+                            const war = warSnapshot.val();
+                            war.id = warSnapshot.key;
+                            if (war.status === 'completed') {
+                                processWarRewards(userId, userEmail, war, familyName);
+                            }
+                        });
+                    }
+                });
+            
+            // Process weekly bonuses
+            processWeeklyBonuses(userId, userEmail, familyName);
+            
+            // Process completed challenges
+            database.ref('challenges').orderByChild('status').equalTo('completed').once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        snapshot.forEach(challengeSnapshot => {
+                            const challenge = challengeSnapshot.val();
+                            challenge.id = challengeSnapshot.key;
+                            processChallengeRewards(userId, userEmail, challenge, familyName);
+                        });
+                    }
+                });
+            
+            // Process tribute distributions
+            database.ref('rankings').orderByChild('email').equalTo(userEmail).once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        snapshot.forEach(rankSnapshot => {
+                            const rankData = rankSnapshot.val();
+                            const userRank = rankData.rank;
+                            processTributeDistributions(userId, userEmail, familyName, userRank, currentRespect);
+                        });
+                    }
+                });
+        }
+        
+        // Initialize User Data
+        function initializeUserData(userId, email) {
+            const userData = {
+                email: email,
+                role: 'customer',
+                points: 0,
+                rank: 'associate',
+                createdAt: firebase.database.ServerValue.TIMESTAMP
+            };
+            
+            return database.ref('users/' + userId).set(userData)
+                .then(() => {
+                    return userData;
+                });
+        }
+        
+        // Update Rank Display
+        function updateRankDisplay(totalRespect, userEmail) {
+            document.getElementById('current-respect').textContent = totalRespect;
+            
+            let currentRank = 'associate';
+            let nextRank = 'soldier';
+            let currentMin = 0;
+            let nextMin = 1000;
+            
+            if (totalRespect >= 1000 && totalRespect < 3000) {
+                currentRank = 'soldier';
+                nextRank = 'capo';
+                currentMin = 1000;
+                nextMin = 3000;
+            } else if (totalRespect >= 3000 && totalRespect < 6000) {
+                currentRank = 'capo';
+                nextRank = 'underboss';
+                currentMin = 3000;
+                nextMin = 6000;
+            } else if (totalRespect >= 6000 && totalRespect < 10000) {
+                currentRank = 'underboss';
+                nextRank = 'boss';
+                currentMin = 6000;
+                nextMin = 10000;
+            } else if (totalRespect >= 10000) {
+                currentRank = 'boss';
+                nextRank = 'MAX';
+                currentMin = 10000;
+                nextMin = 10000;
+            }
+            
+            document.getElementById('current-rank').textContent = currentRank.toUpperCase();
+            document.getElementById('next-rank').textContent = nextRank;
+            
+            let progressPercentage = 0;
+            let progressText = '';
+            
+            if (currentRank === 'boss') {
+                progressPercentage = 100;
+                progressText = 'MAX LEVEL';
+            } else {
+                const rankRange = nextMin - currentMin;
+                const userProgress = totalRespect - currentMin;
+                progressPercentage = Math.min(100, Math.max(0, (userProgress / rankRange) * 100));
+                progressText = `${totalRespect}/${nextMin} Respect`;
+            }
+            
+            document.getElementById('progress-text').textContent = progressText;
+            document.getElementById('progress-fill').style.width = progressPercentage + '%';
+            
+            const userLocation = getGeographicalLocation(userEmail);
+            document.getElementById('user-location').textContent = userLocation;
+            
+            const user = auth.currentUser;
+            if (user) {
+                database.ref('users/' + user.uid + '/rank').set(currentRank);
+            }
+        }
+
+        // Get Geographical Location
+        function getGeographicalLocation(email) {
+            const emailHash = email.split('').reduce((a, b) => {
+                a = ((a << 5) - a) + b.charCodeAt(0);
+                return a & a;
+            }, 0);
+            const familyIndex = Math.abs(emailHash) % families.length;
+            return families[familyIndex];
+        }
+
+        // Load Available Jobs
+        function loadAvailableJobs() {
+            const availableJobsList = document.getElementById('available-jobs-list');
+            availableJobsList.innerHTML = '<p>Loading available jobs...</p>';
+            
+            database.ref('availableJobs').once('value')
+                .then((snapshot) => {
+                    if (!snapshot.exists()) {
+                        availableJobsList.innerHTML = '<p>No available jobs at the moment. Check back later.</p>';
+                        return;
+                    }
+                    
+                    const jobs = snapshot.val();
+                    let jobsHTML = '<div class="job-grid">';
+                    
+                    for (const jobId in jobs) {
+                        const job = jobs[jobId];
+                        jobsHTML += `
+                            <div class="job-card">
+                                <h3 class="job-title">${job.title || 'Job'}</h3>
+                                <p class="job-description">${job.description || 'No description available'}</p>
+                                <div class="job-reward">
+                                    <button class="btn btn-primary complete-available-job" data-jobid="${jobId}" data-points="${job.points || 0}">Complete Job</button>
+                                    <span class="points-badge">+${job.points || 0} Respect</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    jobsHTML += '</div>';
+                    availableJobsList.innerHTML = jobsHTML;
+                    
+                    document.querySelectorAll('.complete-available-job').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const jobId = e.target.dataset.jobid;
+                            const points = parseInt(e.target.dataset.points);
+                            completeAvailableJob(jobId, points);
+                        });
+                    });
+                })
+                .catch((error) => {
+                    console.error('Error loading available jobs:', error);
+                    availableJobsList.innerHTML = '<p>Error loading available jobs. Please try again later.</p>';
+                });
+        }
+
+        // Load Individual Rankings - PRIVACY PROTECTED VERSION
+        function loadIndividualRankings() {
+            const rankingsList = document.getElementById('individual-rankings-list');
+            rankingsList.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            
+            database.ref('rankings').orderByChild('rank').once('value')
+                .then((snapshot) => {
+                    if (!snapshot.exists()) {
+                        rankingsList.innerHTML = '<div class="empty-state"><div>👥</div><p>No rankings available yet</p><p>Ask the Don to generate rankings</p></div>';
+                        return;
+                    }
+                    
+                    const rankings = [];
+                    snapshot.forEach(rankSnapshot => {
+                        const rankData = rankSnapshot.val();
+                        rankings.push(rankData);
+                    });
+                    
+                    rankings.sort((a, b) => a.rank - b.rank);
+                    
+                    // Find current user's rank
+                    const currentUserRank = rankings.findIndex(rank => 
+                        auth.currentUser && rank.email === auth.currentUser.email
+                    ) + 1;
+                    
+                    let rankingsHTML = '<div style="display: flex; flex-direction: column; gap: 0.5rem;">';
+                    
+                    // Show top 15 performers
+                    const topPerformers = rankings.slice(0, 15);
+                    
+                    topPerformers.forEach((rank) => {
+                        const isCurrentUser = auth.currentUser && rank.email === auth.currentUser.email;
+                        const geographicalLocation = getGeographicalLocation(rank.email);
+                        const rowClass = isCurrentUser ? 'style="background: #8B0000; padding: 1rem; border-radius: 8px; border: 2px solid #d4af37;"' : 'style="background: #3a3a3a; padding: 1rem; border-radius: 8px;"';
+                        
+                        rankingsHTML += `
+                            <div ${rowClass}>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div style="display: flex; align-items: center; gap: 1rem;">
+                                        <div class="rank-badge" style="background: ${rank.rank <= 3 ? '#d4af37' : '#8B0000'}">${rank.rank}</div>
+                                        <div>
+                                            <div style="font-weight: 500; ${isCurrentUser ? 'color: #d4af37;' : 'color: white;'}">${rank.name}</div>
+                                            <div class="geographical-location">${geographicalLocation}</div>
+                                        </div>
+                                    </div>
+                                    <div class="points-badge">${rank.points} Respect</div>
+                                </div>
+                                ${isCurrentUser ? '<div style="text-align: center; margin-top: 0.5rem; color: #d4af37; font-weight: bold;">← This is you!</div>' : ''}
+                            </div>
+                        `;
+                    });
+                    
+                    // Show current user's position if not in top 15
+                    if (currentUserRank > 15) {
+                        const currentUserData = rankings.find(rank => 
+                            auth.currentUser && rank.email === auth.currentUser.email
+                        );
+                        
+                        if (currentUserData) {
+                            rankingsHTML += `
+                                <div style="background: #8B0000; padding: 1rem; border-radius: 8px; border: 2px solid #d4af37; margin-top: 1rem;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div style="display: flex; align-items: center; gap: 1rem;">
+                                            <div class="rank-badge" style="background: #d4af37">${currentUserRank}</div>
+                                            <div>
+                                                <div style="font-weight: 500; color: #d4af37;">${currentUserData.name}</div>
+                                                <div class="geographical-location">${getGeographicalLocation(currentUserData.email)}</div>
+                                            </div>
+                                        </div>
+                                        <div class="points-badge">${currentUserData.points} Respect</div>
+                                    </div>
+                                    <div style="text-align: center; margin-top: 0.5rem; color: #d4af37; font-weight: bold;">← This is you!</div>
+                                </div>
+                            `;
+                        }
+                    }
+                    
+                    rankingsHTML += '</div>';
+                    rankingsList.innerHTML = rankingsHTML;
+                })
+                .catch((error) => {
+                    console.error('Error loading rankings:', error);
+                    rankingsList.innerHTML = '<div class="empty-state"><div>❌</div><p>Error loading rankings</p></div>';
+                });
+        }
+
+        // FIXED: Complete Job with proper pointsHistory recording
+        function completeJob(jobType, points, link = null) {
+            const user = auth.currentUser;
+            if (!user) return;
+            
+            showLoading();
+            
+            if (jobType === 'referral') {
+                hideLoading();
+                handleReferralJob();
+                return;
+            }
+            
+            database.ref('users/' + user.uid + '/completedJobs/' + jobType).once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        hideLoading();
+                        alert('You have already completed this job!');
+                        return;
+                    }
+                    
+                    const requestId = 'job_request_' + Date.now();
+                    const requestData = {
+                        userId: user.uid,
+                        userEmail: user.email,
+                        userName: user.displayName || user.email.split('@')[0],
+                        jobId: jobType,
+                        jobType: jobType,
+                        jobTitle: getJobTitle(jobType),
+                        points: points,
+                        status: 'pending',
+                        timestamp: firebase.database.ServerValue.TIMESTAMP,
+                        processedBy: '',
+                        processedAt: 0
+                    };
+                    
+                    return database.ref('jobRequests/' + requestId).set(requestData);
+                })
+                .then(() => {
+                    return database.ref('users/' + user.uid + '/completedJobs/' + jobType).set({
+                        completedAt: firebase.database.ServerValue.TIMESTAMP,
+                        pointsEarned: points,
+                        status: 'pending'
+                    });
+                })
+                .then(() => {
+                    hideLoading();
+                    alert('Job submitted for approval! Your request will be reviewed. You will be redirected to complete the task.');
+                    
+                    if (link) {
+                        setTimeout(() => {
+                            window.open(link, '_blank');
+                        }, 2000);
+                    }
+                })
+                .catch((error) => {
+                    hideLoading();
+                    console.error('Error completing job:', error);
+                    alert('Error submitting job. Please try again.');
+                });
+        }
+
+        // FIXED: Handle Referral Job with proper pointsHistory recording
+        function handleReferralJob() {
+            const user = auth.currentUser;
+            if (!user) return;
+            
+            const whatsappLink = "https://wa.me/2349043930196";
+            const message = `To complete this referral job:\n\n1. Copy our WhatsApp link\n2. Share it with your friends\n3. When they join, you'll earn 20 Respect points\n\nClick OK to copy the link`;
+            
+            if (confirm(message)) {
+                navigator.clipboard.writeText(whatsappLink)
+                    .then(() => {
+                        alert('WhatsApp link copied to clipboard! You can now share it with your friends.');
+                        
+                        showLoading();
+                        
+                        const requestId = 'job_request_' + Date.now();
+                        const requestData = {
+                            userId: user.uid,
+                            userEmail: user.email,
+                            userName: user.displayName || user.email.split('@')[0],
+                            jobId: 'referral',
+                            jobType: 'referral',
+                            jobTitle: 'Make an Offer (Refer a Friend)',
+                            points: 20,
+                            status: 'pending',
+                            timestamp: firebase.database.ServerValue.TIMESTAMP,
+                            processedBy: '',
+                            processedAt: 0
+                        };
+                        
+                        database.ref('jobRequests/' + requestId).set(requestData)
+                            .then(() => {
+                                hideLoading();
+                            })
+                            .catch((error) => {
+                                hideLoading();
+                                console.error('Error submitting referral job:', error);
+                            });
+                    })
+                    .catch((error) => {
+                        console.error('Error copying to clipboard:', error);
+                        alert('Error copying link. Please manually copy: ' + whatsappLink);
+                    });
+            }
+        }
+
+        // FIXED: Complete Available Job with proper pointsHistory recording
+        function completeAvailableJob(jobId, points) {
+            const user = auth.currentUser;
+            if (!user) {
+                alert("Please log in first");
+                return;
+            }
+            
+            showLoading();
+            
+            database.ref('availableJobs/' + jobId).once('value')
+                .then((jobSnapshot) => {
+                    if (!jobSnapshot.exists()) {
+                        throw new Error('Job not found!');
+                    }
+                    
+                    const jobData = jobSnapshot.val();
+                    
+                    return database.ref('users/' + user.uid + '/completedAvailableJobs/' + jobId).once('value')
+                        .then((completedSnapshot) => {
+                            if (completedSnapshot.exists()) {
+                                const completedData = completedSnapshot.val();
+                                if (completedData.status === 'pending') {
+                                    throw new Error('This job is already pending approval!');
+                                } else if (completedData.status === 'approved') {
+                                    throw new Error('You have already completed this job!');
+                                }
+                            }
+                            
+                            return jobData;
+                        });
+                })
+                .then((jobData) => {
+                    const jobTitle = jobData.title || 'Available Job';
+                    
+                    const requestId = 'available_job_request_' + Date.now();
+                    const requestData = {
+                        userId: user.uid,
+                        userEmail: user.email,
+                        userName: user.displayName || user.email.split('@')[0],
+                        jobId: jobId,
+                        jobType: 'available_job',
+                        jobTitle: jobTitle,
+                        points: points,
+                        status: 'pending',
+                        timestamp: firebase.database.ServerValue.TIMESTAMP,
+                        processedBy: '',
+                        processedAt: 0
+                    };
+                    
+                    return database.ref('jobRequests/' + requestId).set(requestData)
+                        .then(() => {
+                            return database.ref('users/' + user.uid + '/completedAvailableJobs/' + jobId).set({
+                                completedAt: firebase.database.ServerValue.TIMESTAMP,
+                                pointsEarned: points,
+                                status: 'pending',
+                                requestId: requestId
+                            });
+                        });
+                })
+                .then(() => {
+                    updateJobUI(jobId, 'pending');
+                    hideLoading();
+                    alert('Job submitted for approval! The Don will review your work.');
+                })
+                .catch((error) => {
+                    hideLoading();
+                    if (error.message.includes('already') || error.message.includes('pending')) {
+                        alert(error.message);
+                    } else {
+                        alert('Error submitting job: ' + error.message);
+                    }
+                });
+        }
+
+        // Update Job UI
+        function updateJobUI(jobId, status) {
+            const jobButton = document.querySelector(`[data-jobid="${jobId}"]`);
+            if (!jobButton) return;
+            
+            const jobCard = jobButton.closest('.job-card');
+            if (!jobCard) return;
+            
+            if (status === 'pending') {
+                jobButton.textContent = '⏳ Pending Approval';
+                jobButton.disabled = true;
+                jobButton.style.backgroundColor = '#f39c12';
+                jobButton.style.cursor = 'not-allowed';
+                
+                const pointsBadge = jobCard.querySelector('.points-badge');
+                if (pointsBadge) {
+                    pointsBadge.innerHTML = '⏳ Pending';
+                    pointsBadge.style.backgroundColor = '#f39c12';
+                }
+            }
+        }
+
+        // Listen for Notifications
+        function listenForNotifications() {
+            const user = auth.currentUser;
+            if (!user) return;
+            
+            database.ref('notifications/' + user.uid).on('child_added', (snapshot) => {
+                const notification = snapshot.val();
+                notification.id = snapshot.key;
+                
+                if (!notification.read) {
+                    showNotificationPopup(notification);
+                    
+                    database.ref('notifications/' + user.uid + '/' + snapshot.key + '/read').set(true)
+                        .then(() => {
+                            loadNotifications();
+                        });
+                }
+            });
+        }
+
+        // Load Notifications
+        function loadNotifications() {
+            const user = auth.currentUser;
+            if (!user) return;
+            
+            const notificationsList = document.getElementById('notifications-list');
+            if (!notificationsList) return;
+            
+            notificationsList.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            
+            database.ref('notifications/' + user.uid).once('value')
+                .then((snapshot) => {
+                    notificationsList.innerHTML = '';
+                    
+                    if (!snapshot.exists()) {
+                        notificationsList.innerHTML = `
+                            <div class="empty-notifications">
+                                <div>📭</div>
+                                <p>No notifications yet</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    const notifications = [];
+                    let unreadCount = 0;
+                    
+                    snapshot.forEach(notificationSnapshot => {
+                        const notification = notificationSnapshot.val();
+                        notification.id = notificationSnapshot.key;
+                        notifications.push(notification);
+                        
+                        if (!notification.read) {
+                            unreadCount++;
+                        }
+                    });
+                    
+                    notifications.sort((a, b) => b.timestamp - a.timestamp);
+                    
+                    updateNotificationBadge(unreadCount);
+                    
+                    if (notifications.length === 0) {
+                        notificationsList.innerHTML = `
+                            <div class="empty-notifications">
+                                <div>📭</div>
+                                <p>No notifications yet</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    notifications.forEach(notification => {
+                        const notificationItem = document.createElement('div');
+                        notificationItem.className = `notification-item ${notification.type || ''} ${notification.read ? '' : 'unread'}`;
+                        
+                        const date = notification.timestamp ? new Date(notification.timestamp).toLocaleString() : 'Unknown date';
+                        
+                        notificationItem.innerHTML = `
+                            <div class="notification-header">
+                                <div class="notification-title">${notification.title || 'Notification'}</div>
+                                <div class="notification-date">${date}</div>
+                            </div>
+                            <div class="notification-message">${notification.message || 'No message'}</div>
+                            <div class="notification-actions-small">
+                                <span class="notification-type">${notification.type || 'general'}</span>
+                                ${!notification.read ? '<span style="color: #8B0000; font-weight: bold;">● NEW</span>' : ''}
+                            </div>
+                        `;
+                        
+                        notificationsList.appendChild(notificationItem);
+                    });
+                })
+                .catch((error) => {
+                    console.error('Error loading notifications:', error);
+                    notificationsList.innerHTML = `
+                        <div class="empty-notifications">
+                            <div>❌</div>
+                            <p>Error loading notifications</p>
+                        </div>
+                    `;
+                });
+        }
+
+        // Mark All Notifications as Read
+        function markAllNotificationsRead() {
+            const user = auth.currentUser;
+            if (!user) return;
+            
+            showLoading();
+            
+            database.ref('notifications/' + user.uid).once('value')
+                .then((snapshot) => {
+                    const updates = {};
+                    
+                    snapshot.forEach(notificationSnapshot => {
+                        const notification = notificationSnapshot.val();
+                        if (!notification.read) {
+                            updates['notifications/' + user.uid + '/' + notificationSnapshot.key + '/read'] = true;
+                        }
+                    });
+                    
+                    if (Object.keys(updates).length === 0) {
+                        hideLoading();
+                        alert('All notifications are already read!');
+                        return;
+                    }
+                    
+                    return database.ref().update(updates);
+                })
+                .then(() => {
+                    hideLoading();
+                    alert('All notifications marked as read!');
+                    loadNotifications();
+                })
+                .catch((error) => {
+                    hideLoading();
+                    console.error('Error marking notifications as read:', error);
+                    alert('Error: ' + error.message);
+                });
+        }
+
+        // Update Notification Badge
+        function updateNotificationBadge(count) {
+            const viewRankingsBtn = document.getElementById('view-rankings-btn');
+            if (viewRankingsBtn && count > 0) {
+                const existingBadge = viewRankingsBtn.querySelector('.notification-badge');
+                if (existingBadge) {
+                    existingBadge.remove();
+                }
+                
+                const badge = document.createElement('span');
+                badge.className = 'notification-badge';
+                badge.style.cssText = `
+                    position: absolute;
+                    top: -5px;
+                    right: -5px;
+                    background: #8B0000;
+                    color: white;
+                    border-radius: 50%;
+                    width: 20px;
+                    height: 20px;
+                    font-size: 0.7rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-weight: bold;
+                `;
+                badge.textContent = count > 9 ? '9+' : count;
+                viewRankingsBtn.style.position = 'relative';
+                viewRankingsBtn.appendChild(badge);
+            }
+        }
+
+        // Show Notification Popup
+        function showNotificationPopup(notification) {
+            const popup = document.createElement('div');
+            popup.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                background: #2c2c2c;
+                color: white;
+                padding: 15px;
+                border-radius: 8px;
+                border-left: 4px solid ${getNotificationColor(notification.type)};
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 10000;
+                max-width: 300px;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                animation: slideIn 0.3s ease-out;
+            `;
+            
+            popup.innerHTML = `
+                <div style="font-weight: bold; margin-bottom: 5px; color: #d4af37;">${notification.title}</div>
+                <div style="font-size: 0.9rem; margin-bottom: 8px;">${notification.message}</div>
+                <div style="font-size: 0.7rem; color: #ccc; text-align: right;">Just now</div>
+            `;
+            
+            document.body.appendChild(popup);
+            
+            setTimeout(() => {
+                if (popup.parentNode) {
+                    popup.style.animation = 'slideOut 0.3s ease-in';
+                    setTimeout(() => {
+                        if (popup.parentNode) {
+                            popup.parentNode.removeChild(popup);
+                        }
+                    }, 300);
+                }
+            }, 5000);
+            
+            if (!document.getElementById('notification-animations')) {
+                const style = document.createElement('style');
+                style.id = 'notification-animations';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes slideOut {
+                        from { transform: translateX(0); opacity: 1; }
+                        to { transform: translateX(100%); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+
+        // Get Notification Color
+        function getNotificationColor(type) {
+            const colors = {
+                'job_approved': '#2ecc71',
+                'job_rejected': '#e74c3c',
+                'general': '#d4af37',
+                'family_contract': '#9b59b6',
+                'tribute_distributed': '#f39c12',
+                'rank_promotion': '#3498db',
+                'territory_captured': '#2ecc71',
+                'family_war_started': '#e74c3c',
+                'omerta_challenge': '#9b59b6',
+                'weekly_bonus': '#3498db'
+            };
+            return colors[type] || '#d4af37';
+        }
+
+        // Get Job Title
+        function getJobTitle(jobType) {
+            const jobTitles = {
+                'wiretap': 'The Wiretap (Like and Follow on Facebook)',
+                'silentpartner': 'Silent Partner (Write a Review)',
+                'referral': 'Make an Offer (Refer a Friend)'
+            };
+            return jobTitles[jobType] || jobType;
+        }
+
+        // Submit Vault Request
+        function submitVaultRequest(e) {
+            e.preventDefault();
+            
+            const user = auth.currentUser;
+            if (!user) return;
+            
+            const serviceType = document.getElementById('service-type').value;
+            const serviceDetails = document.getElementById('service-details').value;
+            const contactPreference = document.getElementById('contact-preference').value;
+            const urgency = document.getElementById('urgency').value;
+            
+            if (!serviceType || !serviceDetails || !contactPreference) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+            
+            showLoading();
+            
+            const requestId = 'vault_' + Date.now();
+            const requestData = {
+                userId: user.uid,
+                userEmail: user.email,
+                serviceType: serviceType,
+                serviceDetails: serviceDetails,
+                contactPreference: contactPreference,
+                urgency: urgency,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                status: 'new'
+            };
+            
+            database.ref('vaultRequests/' + requestId).set(requestData)
+                .then(() => {
+                    hideLoading();
+                    alert('Your request has been submitted. We will contact you soon.');
+                    document.getElementById('vault-form').reset();
+                })
+                .catch((error) => {
+                    hideLoading();
+                    console.error('Error submitting vault request:', error);
+                    alert('Error submitting request. Please try again.');
+                });
+        }
+        
+        // Setup Event Listeners
+        function setupEventListeners() {
+            document.querySelectorAll('.complete-job').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const jobType = e.target.dataset.job;
+                    const points = parseInt(e.target.dataset.points);
+                    const link = e.target.dataset.link || null;
+                    completeJob(jobType, points, link);
+                });
+            });
+            
+            document.getElementById('vault-form').addEventListener('submit', submitVaultRequest);
+        }
+        
+        // Show Loading
+        function showLoading() {
+            document.getElementById('loading-indicator').style.display = 'flex';
+        }
+        
+        // Hide Loading
+        function hideLoading() {
+            document.getElementById('loading-indicator').style.display = 'none';
+        }
+        
+        // Auth State Listener
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                database.ref('users/' + user.uid).once('value')
+                    .then((snapshot) => {
+                        const userData = snapshot.val();
+                        if (userData && userData.role === 'customer') {
+                            currentUser = user;
+                            showCustomerDashboard();
+                        } else {
+                            auth.signOut();
+                            showSelection();
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Error checking user role:', error);
+                        showSelection();
+                    });
+            } else {
+                showSelection();
+            }
+        });
+    </script>
+</body>
+</html>
