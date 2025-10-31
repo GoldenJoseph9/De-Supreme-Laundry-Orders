@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Operations - Rules & Manual</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #1a1a1a;
+            color: #f5f5f5;
+            min-height: 100vh;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" opacity="0.05"><rect width="100" height="100" fill="none" stroke="white" stroke-width="2"/></svg>');
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #2c2c2c, #8B0000);
+            padding: 2rem 0;
+            text-align: center;
+            border-bottom: 3px solid #d4af37;
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "⚔️";
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 2rem;
+            opacity: 0.3;
+        }
+        
+        header::after {
+            content: "💰";
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 2rem;
+            opacity: 0.3;
+        }
+        
+        .header-content h1 {
+            font-family: 'Times New Roman', serif;
+            color: #d4af37;
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .header-content .tagline {
+            color: #ccc;
+            font-size: 1.2rem;
+            font-style: italic;
+        }
+        
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #8B0000;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: #A52A2A;
+            transform: translateX(-5px);
+        }
+        
+        .rules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .rule-card {
+            background: #2c2c2c;
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid #444;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .rule-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #d4af37, #8B0000);
+        }
+        
+        .rule-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-icon {
+            font-size: 2.5rem;
+            background: #d4af37;
+            color: #1a1a1a;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .card-title {
+            color: #d4af37;
+            font-size: 1.5rem;
+            font-family: 'Times New Roman', serif;
+        }
+        
+        .card-content {
+            color: #ccc;
+        }
+        
+        .card-content ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .card-content li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #444;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        
+        .card-content li:last-child {
+            border-bottom: none;
+        }
+        
+        .card-content li::before {
+            content: "•";
+            color: #d4af37;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+        
+        .money-highlight {
+            background: linear-gradient(135deg, #d4af37, #f4d03f);
+            color: #1a1a1a;
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+            margin: 0.2rem 0;
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #8B0000, #A52A2A);
+            border: 2px solid #d4af37;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+        
+        .warning-box h3 {
+            color: #d4af37;
+            margin-bottom: 1rem;
+            font-family: 'Times New Roman', serif;
+        }
+        
+        .family-section {
+            background: linear-gradient(135deg, #2c2c2c, #3a3a3a);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 3rem 0;
+            border: 2px solid #d4af37;
+        }
+        
+        .family-section h2 {
+            color: #d4af37;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-family: 'Times New Roman', serif;
+            font-size: 2rem;
+        }
+        
+        .families-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .family-card {
+            background: #2c2c2c;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid #555;
+            transition: transform 0.3s ease;
+        }
+        
+        .family-card:hover {
+            transform: scale(1.05);
+        }
+        
+        .family-name {
+            color: #d4af37;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            font-family: 'Times New Roman', serif;
+        }
+        
+        .family-description {
+            color: #ccc;
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+        
+        .rank-section {
+            background: #2c2c2c;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 1px solid #444;
+        }
+        
+        .rank-section h2 {
+            color: #d4af37;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-family: 'Times New Roman', serif;
+        }
+        
+        .ranks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        .rank-item {
+            background: #3a3a3a;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            border-left: 4px solid #d4af37;
+        }
+        
+        .rank-name {
+            color: #d4af37;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .rank-points {
+            color: #ccc;
+            font-size: 0.9rem;
+        }
+        
+        .point-value {
+            background: linear-gradient(135deg, #2e8b57, #3cb371);
+            color: white;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-top: 0.5rem;
+            display: inline-block;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #ccc;
+            border-top: 1px solid #444;
+            margin-top: 3rem;
+        }
+        
+        .omerta-code {
+            background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
+            border: 2px solid #8B0000;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+            position: relative;
+        }
+        
+        .omerta-code::before {
+            content: "🔒";
+            font-size: 3rem;
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a1a;
+            padding: 0 1rem;
+        }
+        
+        .omerta-code h3 {
+            color: #8B0000;
+            margin-bottom: 1rem;
+            font-family: 'Times New Roman', serif;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header-content h1 {
+                font-size: 2rem;
+            }
+            
+            .rules-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .back-btn {
+                position: relative;
+                top: 0;
+                left: 0;
+                margin-bottom: 1rem;
+                display: inline-flex;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="javascript:history.back()" class="back-btn">
+        ← Back to Family
+    </a>
+
+    <header>
+        <div class="header-content">
+            <h1>FAMILY OPERATIONS</h1>
+            <p class="tagline">The Official Rules & Code of Conduct</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="warning-box">
+            <h3>⚠️ OMERTÀ NOTICE</h3>
+            <p>What happens in the Family, stays in the Family. Discretion is not just appreciated - it's required.</p>
+        </div>
+
+        <div class="rules-grid">
+            <div class="rule-card">
+                <div class="card-header">
+                    <div class="card-icon">👑</div>
+                    <h2 class="card-title">The Family Way</h2>
+                </div>
+                <div class="card-content">
+                    <ul>
+                        <li>You're automatically assigned to a Family based on your email</li>
+                        <li>No switching Families - loyalty is everything</li>
+                        <li>Your Family is your reputation, protect it</li>
+                        <li>Support your Family members in all operations</li>
+                        <li>Disrespect to other Families won't be tolerated</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="rule-card">
+                <div class="card-header">
+                    <div class="card-icon">💰</div>
+                    <h2 class="card-title">Respect Points System</h2>
+                </div>
+                <div class="card-content">
+                    <ul>
+                        <li>Each Respect Point has real value: <span class="money-highlight">₦25 Naira</span></li>
+                        <li>Points are earned through completed operations</li>
+                        <li>All point awards require Don approval</li>
+                        <li>Monthly tribute distributions to top performers</li>
+                        <li>Points can be redeemed for real rewards</li>
+                        <li>False submissions result in point forfeiture</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="rule-card">
+                <div class="card-header">
+                    <div class="card-icon">⚔️</div>
+                    <h2 class="card-title">Operations & Jobs</h2>
+                </div>
+                <div class="card-content">
+                    <ul>
+                        <li>Submit clear evidence for all completed jobs</li>
+                        <li>Quick Jobs - fast operations for immediate points</li>
+                        <li>Available Jobs - standard missions with good pay</li>
+                        <li>Family Contracts - high-stakes, high-reward work</li>
+                        <li>Wait for Capo approval before points are awarded</li>
+                        <li>No incomplete or false job submissions</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="rule-card">
+                <div class="card-header">
+                    <div class="card-icon">🏆</div>
+                    <h2 class="card-title">Rank & Hierarchy</h2>
+                </div>
+                <div class="card-content">
+                    <ul>
+                        <li><strong>Associate</strong> (0-999) - Prove your worth</li>
+                        <li><strong>Soldier</strong> (1,000-2,999) - Made member</li>
+                        <li><strong>Capo</strong> (3,000-5,999) - Trusted lieutenant</li>
+                        <li><strong>Underboss</strong> (6,000-9,999) - Second in command</li>
+                        <li><strong>Boss</strong> (10,000+) - Family leadership</li>
+                        <li>Higher ranks get tribute bonuses and respect</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="rule-card">
+                <div class="card-header">
+                    <div class="card-icon">🔫</div>
+                    <h2 class="card-title">Family Warfare</h2>
+                </div>
+                <div class="card-content">
+                    <ul>
+                        <li>Wars last 1-2 weeks between Families</li>
+                        <li>Territory control grants weekly bonuses</li>
+                        <li>Challenges test specific skills and strategies</li>
+                        <li>Victorious Families earn bonus points and prestige</li>
+                        <li>All warfare must be conducted with honor</li>
+                        <li>No sabotage or underhanded tactics allowed</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="rule-card">
+                <div class="card-header">
+                    <div class="card-icon">🏰</div>
+                    <h2 class="card-title">The Vault & Services</h2>
+                </div>
+                <div class="card-content">
+                    <ul>
+                        <li>VIP laundry services available</li>
+                        <li>Emergency cleaning operations</li>
+                        <li>Special treatment for loyal members</li>
+                        <li>Priority service for higher ranks</li>
+                        <li>Discretion and quality guaranteed</li>
+                        <li>All vault requests handled personally by the Don</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="family-section">
+            <h2>THE THREE FAMILIES</h2>
+            <div class="families-grid">
+                <div class="family-card">
+                    <h3 class="family-name">De Supreme Family</h3>
+                    <p class="family-description">"We don't follow trends - we create them. Excellence flows through our veins. Join the Family that sets the standard."</p>
+                </div>
+                <div class="family-card">
+                    <h3 class="family-name">De Speed Family</h3>
+                    <p class="family-description">"Time is money, and we respect both. We get things done while others are still talking. Efficiency is our weapon."</p>
+                </div>
+                <div class="family-card">
+                    <h3 class="family-name">De Reliable Family</h3>
+                    <p class="family-description">"In this world, you need people you can count on. We're the foundation everything else is built upon. Dependability is our strength."</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="rank-section">
+            <h2>RESPECT POINTS VALUE</h2>
+            <div class="ranks-grid">
+                <div class="rank-item">
+                    <div class="rank-name">💰 Point Value</div>
+                    <div class="rank-points">Each Respect Point =</div>
+                    <div class="point-value">₦25 Naira</div>
+                </div>
+                <div class="rank-item">
+                    <div class="rank-name">💎 Example: 100 Points</div>
+                    <div class="rank-points">Worth</div>
+                    <div class="point-value">₦2,500 Naira</div>
+                </div>
+                <div class="rank-item">
+                    <div class="rank-name">🏆 Example: 1,000 Points</div>
+                    <div class="rank-points">Worth</div>
+                    <div class="point-value">₦25,000 Naira</div>
+                </div>
+                <div class="rank-item">
+                    <div class="rank-name">👑 Example: 5,000 Points</div>
+                    <div class="rank-points">Worth</div>
+                    <div class="point-value">₦125,000 Naira</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="omerta-code">
+            <h3>THE CODE OF SILENCE</h3>
+            <p>"Omertà isn't just a rule - it's our way of life. What you see here, what you earn here, what we build here - stays here. Loyalty above all. Family above everything."</p>
+        </div>
+
+        <footer>
+            <p>Family Operations System © 2024 | Laundry with Respect, Business with Honor</p>
+            <p style="margin-top: 1rem; font-size: 0.9rem; color: #888;">Violation of Family rules may result in point forfeiture or expulsion from the Family</p>
+        </footer>
+    </div>
+</body>
+</html>
