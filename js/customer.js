@@ -119,6 +119,155 @@ function updatePointsDisplay() {
 }
 
 // =============================================
+// PAYMENT SYSTEM FUNCTIONS
+// =============================================
+
+// Payment Functions
+function setupPaymentCheckbox(orderId, checkbox, isCustomer = true) {
+    checkbox.addEventListener('change', function() {
+        const paymentData = {
+            paymentSent: this.checked,
+            paymentSentAt: this.checked ? firebase.database.ServerValue.TIMESTAMP : null,
+            updatedBy: isCustomer ? 'customer' : 'admin'
+        };
+        
+        showLoading();
+        database.ref('customers/' + orderId).update(paymentData)
+            .then(() => {
+                hideLoading();
+                if (isCustomer) {
+                    loadCustomerData(); // Refresh to show admin confirmation
+                }
+            })
+            .catch(error => {
+                hideLoading();
+                alert('Error updating payment status: ' + error.message);
+                this.checked = !this.checked; // Revert on error
+            });
+    });
+}
+
+function getPaymentStatus(order) {
+    if (order.paymentConfirmed) {
+        return {
+            text: 'Confirmed',
+            class: 'payment-confirmed',
+            customerChecked: true,
+            adminChecked: true,
+            customerDisabled: true
+        };
+    } else if (order.paymentSent) {
+        return {
+            text: 'Sent - Pending',
+            class: 'payment-sent',
+            customerChecked: true,
+            adminChecked: false,
+            customerDisabled: false
+        };
+    } else {
+        return {
+            text: 'Pending',
+            class: 'payment-pending',
+            customerChecked: false,
+            adminChecked: false,
+            customerDisabled: false
+        };
+    }
+}
+
+// =============================================
+// ACCOUNT MODAL FUNCTIONS
+// =============================================
+
+function setupAccountModal() {
+    const accountBtn = document.getElementById('show-account-btn');
+    const accountModal = document.getElementById('account-modal');
+    const closeAccountModal = document.getElementById('close-account-modal');
+    
+    console.log('🔍 Setting up account modal...');
+    console.log('Account button found:', accountBtn);
+    console.log('Account modal found:', accountModal);
+    console.log('Close button found:', closeAccountModal);
+    
+    if (accountBtn) {
+        accountBtn.addEventListener('click', () => {
+            console.log('🎯 Account button clicked!');
+            if (accountModal) {
+                accountModal.style.display = 'flex';
+                console.log('✅ Account modal displayed');
+            } else {
+                console.error('❌ Account modal not found when button clicked');
+            }
+        });
+    } else {
+        console.error('❌ Account button not found!');
+        return;
+    }
+    
+    if (closeAccountModal) {
+        closeAccountModal.addEventListener('click', () => {
+            console.log('🔒 Closing account modal');
+            if (accountModal) {
+                accountModal.style.display = 'none';
+            }
+        });
+    } else {
+        console.error('❌ Close account modal button not found!');
+    }
+    
+    // Copy button functionality
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const textToCopy = this.getAttribute('data-text');
+            console.log('📋 Copying text:', textToCopy);
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const originalText = this.textContent;
+                this.textContent = 'Copied!';
+                this.classList.add('copied');
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    this.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = textToCopy;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    const originalText = this.textContent;
+                    this.textContent = 'Copied!';
+                    this.classList.add('copied');
+                    
+                    setTimeout(() => {
+                        this.textContent = originalText;
+                        this.classList.remove('copied');
+                    }, 2000);
+                } catch (fallbackErr) {
+                    console.error('Fallback copy failed: ', fallbackErr);
+                    alert('Failed to copy text. Please copy manually.');
+                }
+                document.body.removeChild(textArea);
+            });
+        });
+    });
+    
+    // Close modal when clicking outside
+    window.addEventListener('click', (e) => {
+        const accountModal = document.getElementById('account-modal');
+        if (e.target === accountModal) {
+            console.log('🔒 Closing account modal (outside click)');
+            accountModal.style.display = 'none';
+        }
+    });
+    
+    console.log('✅ Account modal setup complete');
+}
+
+// =============================================
 // PAGE NAVIGATION FUNCTIONS
 // =============================================
 
@@ -139,6 +288,11 @@ function showLogin(type) {
 function showCustomerLanding() {
     hideAllPages();
     document.getElementById('customer-landing').classList.add('active');
+    console.log('🏠 Customer landing page shown - initializing account modal');
+    // Initialize account modal AFTER the customer page is shown
+    setTimeout(() => {
+        setupAccountModal();
+    }, 100);
     loadCustomerData();
 }
 
@@ -251,6 +405,7 @@ function loadCustomerData() {
             if (ordersSnapshot.exists()) {
                 ordersSnapshot.forEach(orderSnapshot => {
                     const order = orderSnapshot.val();
+                    order.id = orderSnapshot.key; // Ensure ID is included
                     ordersArray.push(order);
                 });
             }
@@ -285,7 +440,7 @@ function showLoadingState() {
     document.getElementById('total-points').textContent = 'Loading...';
     const operationsList = document.getElementById('customer-operations-list');
     if (operationsList) {
-        operationsList.innerHTML = '<tr><td colspan="4" class="loading-message">Loading operations...</td></tr>';
+        operationsList.innerHTML = '<tr><td colspan="5" class="loading-message">Loading operations...</td></tr>';
     }
 }
 
@@ -293,12 +448,12 @@ function showError(message) {
     document.getElementById('total-points').textContent = 'Error';
     const operationsList = document.getElementById('customer-operations-list');
     if (operationsList) {
-        operationsList.innerHTML = `<tr><td colspan="4" class="error-message">${message}</td></tr>`;
+        operationsList.innerHTML = `<tr><td colspan="5" class="error-message">${message}</td></tr>`;
     }
 }
 
 // =============================================
-// OPERATIONS DISPLAY
+// OPERATIONS DISPLAY - UPDATED WITH PAYMENT
 // =============================================
 
 function displayCustomerOperations(orders) {
@@ -308,7 +463,7 @@ function displayCustomerOperations(orders) {
     operationsList.innerHTML = '';
     
     if (!orders || orders.length === 0) {
-        operationsList.innerHTML = '<tr><td colspan="4" class="no-data-message">No laundry operations found yet</td></tr>';
+        operationsList.innerHTML = '<tr><td colspan="5" class="no-data-message">No laundry operations found yet</td></tr>';
         return;
     }
     
@@ -327,15 +482,35 @@ function displayCustomerOperations(orders) {
         const statusClass = getStatusClass(order);
         const statusText = getStatusText(order);
         const orderPoints = order.points || 0;
+        const paymentStatus = getPaymentStatus(order);
         
         row.innerHTML = `
             <td class="operation-date">${orderDate}</td>
             <td class="operation-items">${order.items || 'Standard laundry service'}</td>
             <td class="operation-status ${statusClass}">${statusText}</td>
             <td class="operation-points">+${orderPoints}</td>
+            <td class="payment-cell">
+                <div class="payment-controls">
+                    <label class="payment-checkbox-label">
+                        <input type="checkbox" class="payment-checkbox" 
+                               ${paymentStatus.customerChecked ? 'checked' : ''}
+                               ${paymentStatus.customerDisabled ? 'disabled' : ''}
+                               data-order="${order.id}">
+                        <span class="payment-status ${paymentStatus.class}">
+                            ${paymentStatus.text}
+                        </span>
+                    </label>
+                </div>
+            </td>
         `;
         
         operationsList.appendChild(row);
+        
+        // Setup checkbox event
+        const checkbox = row.querySelector('.payment-checkbox');
+        if (checkbox && !paymentStatus.customerDisabled) {
+            setupPaymentCheckbox(order.id, checkbox, true);
+        }
     });
 }
 
@@ -750,6 +925,24 @@ function showDebugOutput(message) {
     const debugOutput = document.getElementById('debug-output');
     debugOutput.style.display = 'block';
     debugOutput.innerHTML = `<div style="color: white; background: #e74c3c; padding: 15px; border-radius: 5px; font-weight: bold;">${message}</div>`;
+}
+
+// =============================================
+// LOADING FUNCTIONS
+// =============================================
+
+function showLoading() {
+    const loadingIndicator = document.getElementById('loading-indicator');
+    if (loadingIndicator) {
+        loadingIndicator.style.display = 'flex';
+    }
+}
+
+function hideLoading() {
+    const loadingIndicator = document.getElementById('loading-indicator');
+    if (loadingIndicator) {
+        loadingIndicator.style.display = 'none';
+    }
 }
 
 // =============================================
