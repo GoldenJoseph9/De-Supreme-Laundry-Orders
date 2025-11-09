@@ -91,15 +91,21 @@
                                     <th>Items</th>
                                     <th>Status</th>
                                     <th>Respect Earned</th>
+                                    <th>Payment</th>
                                 </tr>
                             </thead>
                             <tbody id="customer-operations-list">
                                 <tr>
-                                    <td colspan="4" class="loading-message">Loading operations...</td>
+                                    <td colspan="5" class="loading-message">Loading operations...</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
+                </div>
+                
+                <!-- Account Number Button -->
+                <div style="text-align: center; margin: 20px;">
+                    <button id="show-account-btn" class="btn btn-primary">Show Account Details</button>
                 </div>
                 
                 <div style="text-align: center; margin-top: 20px;">
@@ -110,6 +116,45 @@
                     <button class="btn btn-primary" onclick="window.open('family-operations.html', '_self')">
                         🏴‍☠️ Enter Family Operations
                     </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Details Modal - ONLY IN CUSTOMER SECTION -->
+        <div class="modal" id="account-modal">
+            <div class="modal-content">
+                <button id="close-account-modal" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer;">×</button>
+                <h2>Family Account Details</h2>
+                <div class="account-details">
+                    <div class="account-info">
+                        <h3>Opay Transfer Details</h3>
+                        <div class="account-item">
+                            <strong>Account Number:</strong>
+                            <span class="account-number">9043930196</span>
+                            <button class="copy-btn" data-text="9043930196">Copy</button>
+                        </div>
+                        <div class="account-item">
+                            <strong>Account Name:</strong>
+                            <span>Nnoko Gabriel Ezinna</span>
+                            <button class="copy-btn" data-text="Nnoko Gabriel Ezinna">Copy</button>
+                        </div>
+                        <div class="account-item">
+                            <strong>Bank:</strong>
+                            <span>Opay Digital Services</span>
+                        </div>
+                    </div>
+                    <div class="payment-instructions">
+                        <h4>Payment Instructions:</h4>
+                        <ol>
+                            <li>Open your Opay app</li>
+                            <li>Select "Transfer"</li>
+                            <li>Enter account number: <strong>9043930196</strong></li>
+                            <li>Account name should display: <strong>Nnoko Gabriel Ezinna</strong></li>
+                            <li>Enter the amount for your laundry</li>
+                            <li>Complete the transfer</li>
+                            <li>Mark payment as sent using the checkbox</li>
+                        </ol>
+                    </div>
                 </div>
             </div>
         </div>
@@ -219,12 +264,13 @@
                             <th>Date</th>
                             <th>Status</th>
                             <th>Respect</th>
+                            <th>Payment Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="customers-list">
                         <tr>
-                            <td colspan="8" style="text-align: center; padding: 2rem;">Loading family members...</td>
+                            <td colspan="9" style="text-align: center; padding: 2rem;">Loading family members...</td>
                         </tr>
                     </tbody>
                 </table>
