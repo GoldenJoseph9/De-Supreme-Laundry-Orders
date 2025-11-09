@@ -848,6 +848,128 @@ tr:hover {
     text-align: center;
 }
 
+/* Payment Checkbox Styles */
+.payment-checkbox {
+    transform: scale(1.2);
+    cursor: pointer;
+}
+
+.payment-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.payment-status {
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.payment-pending {
+    color: #b8860b;
+    background: rgba(184, 134, 11, 0.1);
+}
+
+.payment-sent {
+    color: #2c5e1a;
+    background: rgba(44, 94, 26, 0.1);
+}
+
+.payment-confirmed {
+    color: #1565c0;
+    background: rgba(21, 101, 192, 0.1);
+}
+
+.payment-cell {
+    text-align: center;
+}
+
+.payment-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Account Modal Styles */
+.account-details {
+    margin: 20px 0;
+}
+
+.account-info {
+    background: #1a1a1a;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #444;
+}
+
+.account-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #444;
+}
+
+.account-item:last-child {
+    border-bottom: none;
+}
+
+.account-number {
+    font-family: monospace;
+    font-size: 1.1em;
+    color: #c9a96e;
+    font-weight: bold;
+}
+
+.copy-btn {
+    background: #2c5e1a;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.3s ease;
+}
+
+.copy-btn:hover {
+    background: #3a7a24;
+}
+
+.copy-btn.copied {
+    background: #27ae60;
+}
+
+.payment-instructions {
+    background: #1a1a1a;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #444;
+}
+
+.payment-instructions ol {
+    margin-left: 20px;
+    margin-top: 10px;
+}
+
+.payment-instructions li {
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.payment-instructions strong {
+    color: #c9a96e;
+}
+
+/* Account Modal Specific */
+#account-modal .modal-content {
+    max-width: 500px;
+}
+
 @media (max-width: 768px) {
     .mobile-back-btn {
         display: block;
@@ -884,14 +1006,22 @@ tr:hover {
         width: 100%;
         max-width: 250px;
     }
+    
+    .account-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .account-item .copy-btn {
+        align-self: stretch;
+    }
+    
+    .payment-controls {
+        flex-direction: column;
+        gap: 5px;
+    }
 }
-
-
-
-
-
-
-
 
 /* NUCLEAR OPTION - FORCE EVERYTHING VISIBLE */
 #history-modal .modal-content {
@@ -933,19 +1063,3 @@ tr:hover {
     visibility: visible !important;
     opacity: 1 !important;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
