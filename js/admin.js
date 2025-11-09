@@ -99,7 +99,7 @@ function loadCustomers() {
         allCustomers = [];
         
         if (!customersSnapshot.exists()) {
-            document.getElementById('customers-list').innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 2rem;">No laundry orders found</td></tr>';
+            document.getElementById('customers-list').innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 2rem;">No laundry orders found</td></tr>';
             hideLoading();
             return;
         }
@@ -145,17 +145,76 @@ function loadCustomers() {
     });
 }
 
+// =============================================
+// PAYMENT SYSTEM FUNCTIONS - ADMIN
+// =============================================
+
+function setupAdminPaymentCheckbox(orderId, checkbox) {
+    checkbox.addEventListener('change', function() {
+        const paymentData = {
+            paymentConfirmed: this.checked,
+            paymentConfirmedAt: this.checked ? firebase.database.ServerValue.TIMESTAMP : null,
+            updatedBy: 'admin'
+        };
+        
+        showLoading();
+        database.ref('customers/' + orderId).update(paymentData)
+            .then(() => {
+                hideLoading();
+                loadCustomers(); // Refresh admin view
+            })
+            .catch(error => {
+                hideLoading();
+                alert('Error updating payment status: ' + error.message);
+                this.checked = !this.checked; // Revert on error
+            });
+    });
+}
+
+function getPaymentStatus(customer) {
+    if (customer.paymentConfirmed) {
+        return {
+            text: 'Confirmed',
+            class: 'payment-confirmed',
+            customerChecked: true,
+            adminChecked: true,
+            customerDisabled: true
+        };
+    } else if (customer.paymentSent) {
+        return {
+            text: 'Sent - Pending',
+            class: 'payment-sent',
+            customerChecked: true,
+            adminChecked: false,
+            customerDisabled: false
+        };
+    } else {
+        return {
+            text: 'Pending',
+            class: 'payment-pending',
+            customerChecked: false,
+            adminChecked: false,
+            customerDisabled: false
+        };
+    }
+}
+
+// =============================================
+// RENDER FUNCTIONS - UPDATED WITH PAYMENT
+// =============================================
+
 function renderCustomers(customers) {
     const customersList = document.getElementById('customers-list');
     customersList.innerHTML = '';
     
     if (customers.length === 0) {
-        customersList.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 2rem;">No laundry orders found</td></tr>';
+        customersList.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 2rem;">No laundry orders found</td></tr>';
         return;
     }
     
     customers.forEach(customer => {
         const row = document.createElement('tr');
+        const paymentStatus = getPaymentStatus(customer);
         
         row.innerHTML = `
             <td>${customer.name || ''}</td>
@@ -165,6 +224,18 @@ function renderCustomers(customers) {
             <td>${customer.date || ''}</td>
             <td class="status-${getStatusClass(customer)}">${formatStatus(customer)}</td>
             <td><span class="points-badge">${customer.points || 0}</span></td>
+            <td class="payment-cell">
+                <div class="payment-controls">
+                    <label class="payment-checkbox-label">
+                        <input type="checkbox" class="payment-checkbox admin-payment-checkbox" 
+                               ${paymentStatus.adminChecked ? 'checked' : ''}
+                               data-order="${customer.id}">
+                        <span class="payment-status ${paymentStatus.class}">
+                            ${paymentStatus.text}
+                        </span>
+                    </label>
+                </div>
+            </td>
             <td>
                 <div class="action-buttons">
                     <button class="btn btn-primary edit-btn" data-id="${customer.id}">Edit</button>
@@ -175,18 +246,17 @@ function renderCustomers(customers) {
         `;
         
         customersList.appendChild(row);
-    });
-    
-    document.querySelectorAll('.edit-btn').forEach(btn => {
-        btn.addEventListener('click', () => editCustomer(btn.dataset.id));
-    });
-    
-    document.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', () => deleteCustomer(btn.dataset.id));
-    });
-    
-    document.querySelectorAll('.quick-add-btn').forEach(btn => {
-        btn.addEventListener('click', () => quickAddCustomer(btn.dataset.id));
+        
+        // Setup admin payment checkbox
+        const adminCheckbox = row.querySelector('.admin-payment-checkbox');
+        if (adminCheckbox) {
+            setupAdminPaymentCheckbox(customer.id, adminCheckbox);
+        }
+        
+        // Existing event listeners
+        row.querySelector('.edit-btn').addEventListener('click', () => editCustomer(customer.id));
+        row.querySelector('.delete-btn').addEventListener('click', () => deleteCustomer(customer.id));
+        row.querySelector('.quick-add-btn').addEventListener('click', () => quickAddCustomer(customer.id));
     });
 }
 
@@ -1007,8 +1077,9 @@ function filterCustomers() {
         const statusMatch = formatStatus(customer).toLowerCase().includes(searchTerm);
         const pointsMatch = customer.points && customer.points.toString().includes(searchTerm);
         const phoneMatch = customer.phoneFromUser && customer.phoneFromUser.toLowerCase().includes(searchTerm);
+        const paymentMatch = getPaymentStatus(customer).text.toLowerCase().includes(searchTerm);
         
-        return nameMatch || emailMatch || itemsMatch || statusMatch || pointsMatch || phoneMatch;
+        return nameMatch || emailMatch || itemsMatch || statusMatch || pointsMatch || phoneMatch || paymentMatch;
     });
     
     renderCustomers(filtered);
