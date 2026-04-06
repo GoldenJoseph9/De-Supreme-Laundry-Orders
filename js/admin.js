@@ -1,3 +1,4 @@
+
 // Admin login handler
 document.getElementById('admin-login-form').addEventListener('submit', (e) => {
     e.preventDefault();
@@ -865,9 +866,79 @@ function openHistoryModal(customerId, customerEmail) {
     document.getElementById('history-customer-phone').textContent = customer.phone;
     document.getElementById('history-customer-email').textContent = customer.email;
     
+    // ADDED: Quick Add button in the history modal
+    // Check if button already exists to avoid duplicates
+    let quickAddContainer = document.getElementById('history-quick-add-container');
+    if (!quickAddContainer) {
+        // Create the container and button
+        quickAddContainer = document.createElement('div');
+        quickAddContainer.id = 'history-quick-add-container';
+        quickAddContainer.style.margin = '15px 0';
+        quickAddContainer.style.textAlign = 'center';
+        
+        const quickAddBtn = document.createElement('button');
+        quickAddBtn.id = 'history-quick-add-btn';
+        quickAddBtn.className = 'btn btn-primary';
+        quickAddBtn.style.backgroundColor = '#2a6b47';
+        quickAddBtn.style.padding = '10px 20px';
+        quickAddBtn.innerHTML = '🧺 Quick Add Clothes for this Member';
+        quickAddBtn.onclick = () => {
+            // Close history modal and open quick add pre-filled
+            document.getElementById('history-modal').style.display = 'none';
+            openQuickAddFromHistory(customer.email, customer.name);
+        };
+        
+        quickAddContainer.appendChild(quickAddBtn);
+        
+        // Insert after the customer-details section
+        const customerDetailsDiv = document.querySelector('#history-modal .customer-details');
+        if (customerDetailsDiv) {
+            customerDetailsDiv.insertAdjacentElement('afterend', quickAddContainer);
+        }
+    } else {
+        // Update the button's onclick in case modal is reopened with different customer
+        const btn = document.getElementById('history-quick-add-btn');
+        if (btn) {
+            btn.onclick = () => {
+                document.getElementById('history-modal').style.display = 'none';
+                openQuickAddFromHistory(customer.email, customer.name);
+            };
+        }
+    }
+    
     document.getElementById('history-modal').style.display = 'flex';
     
     loadCustomerHistory(customerId, customer.email);
+}
+
+// ADDED: New function to open quick add from history modal
+function openQuickAddFromHistory(customerEmail, customerName) {
+    showLoading();
+    
+    // Open the customer modal in quick-add mode with pre-filled info
+    document.getElementById('modal-title').textContent = `Quick Add - ${customerName}`;
+    document.getElementById('customer-form').reset();
+    document.getElementById('customer-id').value = '';
+    
+    document.getElementById('customer-name-input').value = customerName || '';
+    document.getElementById('customer-email-input').value = customerEmail || '';
+    document.getElementById('customer-date-input').valueAsDate = new Date();
+    document.getElementById('customer-points-input').value = '0';
+    document.getElementById('customer-status-input').value = 'pending';
+    
+    // Hide phone field for quick add
+    document.getElementById('phone-field-group').style.display = 'none';
+    document.getElementById('customer-phone-input').required = false;
+    document.getElementById('customer-phone-input').value = '';
+    
+    document.getElementById('customer-modal').setAttribute('data-quick-add', 'true');
+    document.getElementById('customer-modal').style.display = 'flex';
+    
+    setTimeout(() => {
+        document.getElementById('customer-items-input').focus();
+    }, 100);
+    
+    hideLoading();
 }
 
 function loadCustomerHistory(customerId, customerEmail) {
