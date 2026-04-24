@@ -1,10 +1,13 @@
-const CACHE_NAME = 'laundry-family-v2';
+const CACHE_NAME = 'laundry-family-v3';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/family-operations.html',
-  '/admin-gamification.html',
-  '/main.css'
+  '/De-Supreme-Laundry-Orders/',
+  '/De-Supreme-Laundry-Orders/index.html',
+  '/De-Supreme-Laundry-Orders/family-operations.html',
+  '/De-Supreme-Laundry-Orders/admin-gamification.html',
+  '/De-Supreme-Laundry-Orders/main.css',
+  '/De-Supreme-Laundry-Orders/js/app.js',
+  '/De-Supreme-Laundry-Orders/js/customer.js',
+  '/De-Supreme-Laundry-Orders/js/admin.js'
 ];
 
 // Install event - cache files
@@ -23,6 +26,13 @@ self.addEventListener('install', event => {
 
 // Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
+  
+  // Only handle requests for your app path
+  if (!url.pathname.startsWith('/De-Supreme-Laundry-Orders/')) {
+    return;
+  }
+  
   event.respondWith(
     caches.match(event.request)
       .then(response => {
