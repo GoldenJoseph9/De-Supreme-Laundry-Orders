@@ -487,5 +487,39 @@
     <script src="game/rank-system.js"></script>
     <script src="gamejs/vault-rewards.js"></script>
     <script src="gamejs/interactive-elements.js"></script>
+
+
+
+
+
+
+    
+
+    <!-- Register Service Worker -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/sw.js')
+        .then(function(reg) {
+          console.log('✅ Service Worker registered successfully:', reg.scope);
+        })
+        .catch(function(err) {
+          console.log('❌ Service Worker registration failed:', err);
+        });
+    });
+  }
+
+  // Check if app is installed
+  window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    console.log('📱 App can be installed');
+    // Store event for later use if you want a custom install button
+    window.deferredPrompt = e;
+  });
+</script>
+
+
+    
+    
 </body>
 </html>
