@@ -520,9 +520,13 @@
 
 
 
-    <!-- Custom Install Button -->
+
+
+    
+<!-- Custom Install Button -->
 <script>
   let deferredPrompt;
+
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
@@ -530,7 +534,7 @@
     // Add install button to page
     const installBtn = document.createElement('button');
     installBtn.textContent = '📱 Install App';
-    installBtn.style.cssText = 'position:fixed; bottom:20px; right:20px; background:#8B0000; color:#d4af37; padding:12px 20px; border:none; border-radius:50px; font-weight:bold; z-index:9999; cursor:pointer;';
+    installBtn.style.cssText = 'position:fixed; bottom:20px; right:20px; background:#3498db; color:white; padding:12px 20px; border:none; border-radius:50px; font-weight:bold; z-index:9999; cursor:pointer; box-shadow:0 2px 10px rgba(0,0,0,0.2);';
     installBtn.onclick = () => {
       deferredPrompt.prompt();
       deferredPrompt.userChoice.then(() => {
@@ -539,6 +543,9 @@
     };
     document.body.appendChild(installBtn);
   });
+
+  // Also log that we're waiting for the event
+  console.log('Waiting for beforeinstallprompt event...');
 </script>
     
     
