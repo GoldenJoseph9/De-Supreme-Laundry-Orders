@@ -2,7 +2,7 @@
 // SERVICE WORKER — De Supreme Laundry Orders
 // Cache version — bump this number when you update files
 // ============================================================
-const CACHE_NAME = 'de-supreme-laundry-v3';
+const CACHE_NAME = 'de-supreme-laundry-v4';
 
 // Files to cache on install (for offline loading)
 const ASSETS = [
