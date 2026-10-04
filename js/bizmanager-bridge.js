@@ -4,11 +4,11 @@
 // ============================================================
 
 // ---------- STATE ----------
-let _bmApp = null;         // second Firebase app
+let _bmApp = null;
 let _bmAuth = null;
 let _bmDb = null;
-let _bmUser = null;        // signed-in Biz Manager user
-let _bmListeners = [];     // active .on() listeners (for cleanup)
+let _bmUser = null;
+let _bmListeners = [];
 
 // ---------- INIT ----------
 function _initBizManager() {
@@ -18,17 +18,14 @@ function _initBizManager() {
         return false;
     }
     try {
-        // Ensure we don't double-initialize
         const existing = firebase.apps.find(a => a.name === 'bizManager');
         _bmApp = existing || firebase.initializeApp(window.BIZ_MANAGER_CONFIG, 'bizManager');
         _bmAuth = _bmApp.auth();
         _bmDb = _bmApp.database();
 
-        // Same LOCAL persistence as the admin app
         _bmAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
             .catch(err => console.warn('⚠️ BM persistence failed:', err));
 
-        // Track the signed-in user
         _bmAuth.onAuthStateChanged(user => {
             _bmUser = user;
             console.log('🔗 Biz Manager auth state:', user ? user.email : '(none)');
@@ -49,17 +46,25 @@ function _initBizManager() {
 }
 
 // ---------- CONNECT PROMPT ----------
-// Called after admin logs in
-window.promptBizManagerConnect = function() {
+window.promptBizManagerConnect = function({ manual = false } = {}) {
     if (!_initBizManager()) return;
-    // Already signed in? do nothing
-    if (_bmUser) return;
+    if (_bmUser) {
+        if (manual && typeof showOfflineToast === 'function') {
+            showOfflineToast('✅ Already connected to Biz Manager', 'info');
+        }
+        return;
+    }
 
-    // Don't spam: if dismissed in last hour, skip
-    const dismissedAt = parseInt(localStorage.getItem('bm_connect_dismissed_at') || '0', 10);
-    if (Date.now() - dismissedAt < 60 * 60 * 1000) return;
+    if (!manual) {
+        const dismissedAt = parseInt(localStorage.getItem('bm_connect_dismissed_at') || '0', 10);
+        if (Date.now() - dismissedAt < 60 * 60 * 1000) return;
+    }
 
     _showConnectModal();
+};
+
+window.openBizManagerConnect = function() {
+    window.promptBizManagerConnect({ manual: true });
 };
 
 function _showConnectModal() {
@@ -128,7 +133,6 @@ window.submitBizManagerConnect = async function() {
         errEl.textContent = 'Connecting...';
         await _bmAuth.signInWithEmailAndPassword(email, password);
         errEl.textContent = '';
-        // onAuthStateChanged handler will close the modal
         if (typeof showOfflineToast === 'function') {
             showOfflineToast('✅ Connected to Biz Manager', 'success');
         }
@@ -137,7 +141,7 @@ window.submitBizManagerConnect = async function() {
     }
 };
 
-// ---------- CONNECTION BADGE ----------
+// ---------- CONNECTION BADGE (always visible) ----------
 function _showConnectionBadge() {
     let badge = document.getElementById('bm-connection-badge');
     if (!badge) {
@@ -147,28 +151,57 @@ function _showConnectionBadge() {
             position: fixed;
             top: 60px;
             right: 20px;
-            background: rgba(46, 204, 113, 0.15);
-            color: #2ecc71;
-            border: 1px solid #2ecc71;
             padding: 6px 12px;
             border-radius: 20px;
             font-size: 11px;
             font-weight: 600;
             z-index: 9998;
             cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
         `;
-        badge.onclick = () => {
-            if (confirm('Disconnect from Biz Manager?')) {
-                window.disconnectBizManager();
-            }
-        };
         document.body.appendChild(badge);
     }
+
     badge.textContent = `🔗 Biz Manager: ${_bmUser.email}`;
+    badge.style.background = 'rgba(46, 204, 113, 0.15)';
+    badge.style.color = '#2ecc71';
+    badge.style.border = '1px solid #2ecc71';
+    badge.onclick = () => {
+        if (confirm('Disconnect from Biz Manager?')) {
+            window.disconnectBizManager();
+        }
+    };
 }
 
 function _hideConnectionBadge() {
-    document.getElementById('bm-connection-badge')?.remove();
+    let badge = document.getElementById('bm-connection-badge');
+    if (!badge) {
+        badge = document.createElement('div');
+        badge.id = 'bm-connection-badge';
+        badge.style.cssText = `
+            position: fixed;
+            top: 60px;
+            right: 20px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            z-index: 9998;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        `;
+        document.body.appendChild(badge);
+    }
+
+    badge.textContent = `🔗 Connect Biz Manager`;
+    badge.style.background = 'rgba(243, 156, 18, 0.15)';
+    badge.style.color = '#f39c12';
+    badge.style.border = '1px solid #f39c12';
+    badge.onclick = () => {
+        window.openBizManagerConnect();
+    };
 }
 
 window.disconnectBizManager = async function() {
@@ -185,19 +218,8 @@ window.disconnectBizManager = async function() {
 };
 
 // ---------- DATA FETCHING (REAL-TIME) ----------
-
-/**
- * Fetch Biz Manager data for a given customer.
- * Matches Biz Manager contacts by email OR phone.
- * Then pulls transactions where transaction.customer === contact.name.
- *
- * @param {Object} customer  { email, phone, name }
- * @param {Function} onUpdate  Called with { contacts, transactions, totals } whenever data changes
- * @returns {Function}  unsubscribe function
- */
 window.fetchBizManagerForCustomer = function(customer, onUpdate) {
     if (!_initBizManager() || !_bmUser) {
-        // Return a no-op unsubscriber; caller will show "not connected" state
         return () => {};
     }
 
@@ -210,7 +232,6 @@ window.fetchBizManagerForCustomer = function(customer, onUpdate) {
     let unsubscribers = [];
 
     const recompute = () => {
-        // Find matching contacts (by email OR phone)
         const matchedContacts = Object.entries(contactsData)
             .map(([id, c]) => ({ id, ...c }))
             .filter(c => {
@@ -223,7 +244,6 @@ window.fetchBizManagerForCustomer = function(customer, onUpdate) {
 
         const matchedNames = matchedContacts.map(c => (c.name || '').toLowerCase().trim()).filter(Boolean);
 
-        // Find transactions for those contacts
         const matchedTransactions = Object.entries(transactionsData)
             .map(([id, t]) => ({ id, ...t }))
             .filter(t => {
@@ -232,7 +252,6 @@ window.fetchBizManagerForCustomer = function(customer, onUpdate) {
             })
             .sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
 
-        // Totals
         let totalRevenue = 0;
         let totalExpenses = 0;
         matchedTransactions.forEach(t => {
@@ -254,7 +273,6 @@ window.fetchBizManagerForCustomer = function(customer, onUpdate) {
         });
     };
 
-    // Real-time listeners
     const contactsRef = _bmDb.ref(`users/${uid}/contacts`);
     const transRef = _bmDb.ref(`users/${uid}/transactions`);
 
@@ -270,7 +288,6 @@ window.fetchBizManagerForCustomer = function(customer, onUpdate) {
     );
     unsubscribers.push(() => transRef.off('value', transHandler));
 
-    // Return unsubscribe
     return () => {
         unsubscribers.forEach(u => { try { u(); } catch (e) {} });
     };
@@ -278,10 +295,7 @@ window.fetchBizManagerForCustomer = function(customer, onUpdate) {
 
 // ---------- INIT ON LOAD ----------
 window.addEventListener('load', () => {
-    // Try to init eagerly so that returning users with a stored session
-    // get auto-connected without any prompt
     setTimeout(() => { _initBizManager(); }, 800);
 });
 
 console.log('🌉 Biz Manager bridge loaded');
-
